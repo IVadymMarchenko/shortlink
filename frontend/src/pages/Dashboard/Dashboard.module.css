@@ -1,0 +1,479 @@
+/* ======================================================= */
+/* 1. БАЗОВЫЙ СЕТОЧНЫЙ ЛЕЙАУТ                              */
+/* ======================================================= */
+.layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+}
+
+.mainContent {
+  flex-grow: 1;
+  padding: 2rem 3rem;
+  margin-left: 260px; /* Отступаем на ширину сайдбара */
+  width: calc(100% - 260px);
+  box-sizing: border-box;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+}
+
+/* Заголовки */
+.title {
+  color: var(--text-main) !important;
+  font-weight: 700;
+  margin-bottom: 0; /* Убираем нижний отступ, так как теперь есть панель фильтров */
+  letter-spacing: -0.025em;
+}
+
+.container h3 {
+  color: var(--text-muted);
+  font-weight: 600;
+  margin: 2.5rem 0 1rem 0;
+}
+
+/* ======================================================= */
+/* 2. КАРТОЧКА ФОРМЫ                                       */
+/* ======================================================= */
+.card {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 2.5rem;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .card {
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.5),
+              0 0 50px -10px rgba(255, 255, 255, 0.02);
+}
+
+.card h3 {
+  color: var(--text-main) !important;
+  font-weight: 700 !important;
+  margin-bottom: 2rem !important;
+}
+
+/* Кнопки создания */
+.btnPrimary {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: all 0.2s;
+}
+
+[data-theme="dark"] .btnPrimary {
+  background: #7c3aed;
+}
+
+.btnPrimary:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+[data-theme="dark"] .btnPrimary:hover {
+  background: #6d28d9;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+}
+
+/* ======================================================= */
+/* 3. РЕЗУЛЬТАТ ГЕНЕРАЦИИ С QR-КОДОМ                       */
+/* ======================================================= */
+.resultContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.resultLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #10b981;
+}
+
+.resultFlexWrapper {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.resultMainSide {
+  flex: 1;
+}
+
+.resultBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px dashed var(--border-color);
+  border-radius: 8px;
+}
+
+[data-theme="dark"] .resultBox {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.resultText {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-main);
+  word-break: break-all;
+}
+
+.qrSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.qrCodeHolder {
+  background: white;
+  padding: 0.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: inline-flex;
+}
+
+.btnDownloadQr {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: all 0.2s;
+}
+
+.btnDownloadQr:hover {
+  background: var(--btn-hover-bg);
+  border-color: var(--text-muted);
+}
+
+/* ======================================================= */
+/* 4. БЛОК ФИЛЬТРОВ И ПОИСКА                               */
+/* ======================================================= */
+.filterSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.filterControls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.searchBox, .sortBox {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon, .sortIcon {
+  position: absolute;
+  left: 12px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.searchInput, .sortSelect {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 0.5rem 1rem 0.5rem 2.2rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.2s;
+}
+
+[data-theme="dark"] .searchInput, 
+[data-theme="dark"] .sortSelect {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.searchInput:focus, .sortSelect:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.sortSelect {
+  cursor: pointer;
+  appearance: none;
+  padding-right: 2.5rem; /* Оставили отступ справа под стрелочку CSS, если будет кастомная */
+}
+
+/* ======================================================= */
+/* 5. СПИСОК ССЫЛОК И СТАТИСТИКА                            */
+/* ======================================================= */
+.linksList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.linkItem {
+  background: var(--card-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
+}
+
+.linkItem:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .linkItem:hover {
+  background: rgba(45, 45, 45, 0.8);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.linkTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2563eb;
+  cursor: pointer;
+  margin-bottom: 0.2rem;
+}
+
+[data-theme="dark"] .linkTitle {
+  color: #a78bfa;
+}
+
+.linkUrl {
+  color: var(--text-main);
+  font-size: 0.85rem;
+  word-break: break-all;
+  margin-bottom: 0.5rem;
+  max-width: 500px;
+}
+
+.linkDate {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.linkStats {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.clicksCount {
+  text-align: right;
+  margin-right: 0.5rem;
+}
+
+.clicksNum {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1;
+}
+
+.clicksLabel {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.btnIcon {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+[data-theme="dark"] .btnIcon {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.btnIcon:hover {
+  background: var(--btn-hover-bg);
+  color: #2563eb;
+}
+
+[data-theme="dark"] .btnIcon:hover {
+  background: var(--btn-hover-bg);
+  color: #a78bfa;
+}
+
+.btnIconStats {
+  background: #64748b;
+  color: #ffffff;
+  border-color: #475569;
+}
+
+[data-theme="dark"] .btnIconStats {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+.btnIconStats:hover {
+  background: #475569;
+  color: #ffffff;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-muted);
+  border: 2px dashed var(--border-color);
+  border-radius: 16px;
+  font-size: 1rem;
+}
+
+/* ======================================================= */
+/* 6. АНИМАЦИИ И АДАПТИВ                                    */
+/* ======================================================= */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .mainContent {
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 1.5rem 1rem;
+    padding-bottom: 90px; /* Чтоб нижний мобильный таб-бар не перекрывал контент */
+  }
+
+  .card {
+    padding: 1.5rem;
+  }
+
+  /* Адаптив для блока результата и QR */
+  .resultFlexWrapper {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.5rem;
+  }
+
+  .qrSection {
+    align-items: center;
+    border-top: 1px dashed var(--border-color);
+    padding-top: 1.5rem;
+  }
+
+  /* Адаптив для панели фильтров */
+  .filterSection {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .filterControls {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchBox, .sortBox, .searchInput, .sortSelect {
+    width: 100%; /* Растягиваем инпуты поиска и сортировки на всю ширину мобилки */
+  }
+
+  /* Элемент ссылки перестраиваем в вертикальный стек */
+  .linkItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+  }
+
+  .linkUrl {
+    max-width: 100%;
+  }
+
+  /* Кнопки и клики на всю ширину */
+  .linkStats {
+    width: 100%;
+    justify-content: space-between;
+    border-top: 1px solid var(--border-color);
+    padding-top: 0.75rem;
+  }
+
+  .clicksCount {
+    text-align: left;
+  }
+}
+
+
+/* Обертка для текста лейбла и кнопки */
+.labelWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* Стильная кнопка-бейдж PRO */
+.proBadgeBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ffffff;
+  border: none;
+  border-radius: 20px;
+  padding: 0.2rem 0.6rem;
+  background-image: linear-gradient(135deg, #6366f1, #3b82f6);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+  cursor: pointer;
+  margin-left: auto;
+  transition: transform 0.2s ease;
+}
+
+/* Элегантный ховер на чистом CSS вместо JS-костылей */
+.proBadgeBtn:hover {
+  transform: scale(1.05);
+}

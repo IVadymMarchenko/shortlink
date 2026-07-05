@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    
+    <script>
+      (function () {
+        const savedTheme = localStorage.getItem('app-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      })();
+    </script>
+
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      /* Если тема темная — жестко красим в наш графит */
+      html[data-theme="dark"], html[data-theme="dark"] body {
+        background-color: #121212 !important;
+      }
+      /* If тема светлая — в наш светло-серый */
+      html[data-theme="light"], html[data-theme="light"] body {
+        background-color: #f8fafc !important;
+      }
+    </style>
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Сокращатель ссылок</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

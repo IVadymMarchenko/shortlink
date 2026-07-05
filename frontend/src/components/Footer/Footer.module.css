@@ -1,0 +1,26 @@
+.footer {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  
+  border-top: 1px solid var(--border-color);
+  padding: 1.2rem 2rem;
+  margin-top: auto;
+  transition: all 0.3s ease;
+}
+
+/* Код ниже оставляем прежним */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+.links { display: flex; gap: 1.5rem; }
+.link { color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+.link:hover { color: #2563eb; }
+[data-theme="dark"] .link:hover { color: #a78bfa; }
+@media (max-width: 600px) { .container { flex-direction: column; gap: 1rem; text-align: center; } }

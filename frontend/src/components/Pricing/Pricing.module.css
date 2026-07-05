@@ -1,0 +1,303 @@
+.pricingWrapper {
+  width: 100%;
+}
+
+.title {
+  color: var(--text-main) !important;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.025em;
+}
+
+.pricingGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  width: 100%;
+  margin-top: 1.5rem;
+  align-items: stretch;
+}
+
+.pricingCard {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+}
+
+.pricingCard:hover {
+  transform: translateY(-5px);
+}
+
+.pricingCardFeatured {
+  border: 2px solid #6366f1;
+  transform: scale(1.03);
+  box-shadow: 0 20px 40px -10px rgba(99, 102, 241, 0.15);
+}
+
+.pricingCardFeatured:hover {
+  transform: scale(1.03) translateY(-5px);
+}
+
+[data-theme="dark"] .pricingCardFeatured {
+  border-color: #a78bfa;
+  box-shadow: 0 0 30px -5px rgba(167, 139, 250, 0.2), 
+              0 20px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+.badgePopular {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #6366f1;
+  color: #ffffff;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+[data-theme="dark"] .badgePopular {
+  background: #7c3aed;
+}
+
+.pricingHeader h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.pricingHeader p {
+  margin: 0 0 1.5rem 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  min-height: 40px;
+}
+
+.price {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 1rem;
+}
+
+.price span {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.featuresList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex-grow: 1;
+}
+
+.featuresList li {
+  font-size: 0.9rem;
+  color: var(--text-main);
+}
+
+.featuresList li.disabled {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+/* Кнопки */
+.btnPlan, .btnPlanFeatured {
+  width: 100%;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  border: none;
+}
+
+.btnPlan {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+
+.btnPlan:hover {
+  background: var(--btn-hover-bg);
+}
+
+.btnPlanFeatured {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .btnPlanFeatured {
+  background: #7c3aed;
+}
+
+.btnPlanFeatured:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+[data-theme="dark"] .btnPlanFeatured:hover {
+  background: #6d28d9;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+}
+
+/* Стили для текущего (заблокированного) тарифа */
+.cardDisabled {
+  opacity: 0.85;
+}
+
+.cardDisabled button:disabled {
+  cursor: not-allowed;
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-muted);
+  border-color: transparent;
+}
+
+[data-theme="dark"] .cardDisabled button:disabled {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ВСПЛЫВАЮЩЕЕ МОДАЛЬНОЕ ОКНО */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modalContent {
+  background: var(--card-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+  padding: 2.5rem;
+  border-radius: 20px;
+  max-width: 440px;
+  width: 90%;
+  position: relative;
+  text-align: center;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+  animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  color: var(--text-main);
+}
+
+.modalContent h3 {
+  margin-top: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.modalNotice {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 1.5rem 0;
+  line-height: 1.5;
+}
+
+.btnConfirm {
+  background: #6366f1;
+  color: #ffffff;
+  border: none;
+  padding: 0.8rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s;
+}
+
+.btnConfirm:hover {
+  background: #4f46e5;
+  transform: translateY(-1px);
+}
+
+[data-theme="dark"] .btnConfirm {
+  background: #7c3aed;
+}
+
+[data-theme="dark"] .btnConfirm:hover {
+  background: #6d28d9;
+}
+
+.btnClose {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.btnClose:hover {
+  color: var(--text-main);
+}
+
+.title {
+  color: var(--text-main) !important;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.025em;
+}
+
+/* АНИМАЦИИ */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Мобильный адаптив */
+@media (max-width: 1024px) {
+  .pricingGrid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  
+  .pricingCardFeatured {
+    transform: scale(1);
+  }
+  
+  .pricingCardFeatured:hover {
+    transform: translateY(-5px);
+  }
+}

@@ -1,0 +1,90 @@
+.header {
+  background: var(--card-bg);
+  /* Эффект размытия заднего плана */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.85rem 2rem;
+  transition: all 0.3s ease;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Остальные стили (.container, .logoGroup и т.д.) оставляем без изменений */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+/* ЛОГОТИП И НАЗВАНИЕ */
+.logoGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.2s ease;
+}
+/* Иконка-ссылка */
+.logoIcon {
+  color: #2563eb; /* Фирменный синий в светлой теме */
+  transition: color 0.3s ease, filter 0.3s ease;
+}
+[data-theme="dark"] .logoIcon {
+  color: #a78bfa; /* Фиолетовый неон в тёмной теме */
+  /* Мягкое неоновое свечение для иконки */
+  filter: drop-shadow(0 0 8px rgba(167, 139, 250, 0.6));
+}
+/* Текст названия "CleanLink" */
+.logoText {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-main);
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: background 0.3s ease;
+}
+.controls { display: flex; align-items: center; gap: 1rem; }
+.controlBtn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.controlBtn:hover { background: var(--btn-hover-bg); }
+.langText { font-family: monospace; }
+.logoutBtn { border-color: rgba(239, 68, 68, 0.4); color: #ef4444; }
+.logoutBtn:hover { background: rgba(239, 68, 68, 0.1); }
+@media (max-width: 600px) { .logoutText, .langText { display: none; } }
+
+
+.logoGroup:hover {
+  /* Легкий интерактивный толчок при наведении */
+  transform: scale(1.03); 
+}
+
+
+[data-theme="dark"] .logoText {
+  /* В тёмной теме делаем красивый градиент от фиолетового к розовому */
+  background: linear-gradient(135deg, #a78bfa, #f472b6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+
+
+

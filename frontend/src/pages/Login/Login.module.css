@@ -1,0 +1,193 @@
+/* АНИМАЦИЯ ПОЯВЛЕНИЯ КАРТОЧКИ */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* АНИМАЦИЯ ТРЯСКИ ПРИ ОШИБКЕ */
+@keyframes shakeAnimation {
+  0%, 100% { transform: translateX(0); }
+  12%, 37%, 62%, 87% { transform: translateX(-10px); }
+  25%, 50%, 75% { transform: translateX(10px); }
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 75vh;
+  padding: 1rem;
+  width: 100%;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 2.2rem;
+  border-radius: 20px;
+  max-width: 400px;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
+  
+  /* Запуск анимации появления */
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+}
+
+[data-theme="dark"] .card {
+  /* Заменяем синий оттенок (15, 23, 42) на чистый тёмно-серый графит (30, 30, 30) */
+  background: rgba(30, 30, 30, 0.45); 
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6);
+}
+
+/* Класс, который вешается при ошибке */
+.shake {
+  animation: shakeAnimation 0.45s ease-in-out !important;
+}
+
+.card:hover:not(.shake) {
+  transform: translateY(-4px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+}
+
+/* Анимация контейнера имени */
+.nameFieldContainer {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.2s ease, margin-bottom 0.3s ease;
+}
+
+.showName {
+  max-height: 80px; /* Даем раскрыться */
+  opacity: 1;
+  margin-bottom: 0.2rem;
+}
+
+/* Остальные стандартные стили */
+.tabs {
+  display: flex;
+  background: rgba(0, 0, 0, 0.04);
+  padding: 0.3rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+}
+
+[data-theme="dark"] .tabs { background: rgba(255, 255, 255, 0.03); }
+
+.tab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 0.65rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.activeTab {
+  background: #ffffff;
+  color: #2563eb;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+}
+
+[data-theme="dark"] .activeTab {
+  background: #1e293b;
+  color: #a78bfa;
+}
+
+.title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem 0;
+  color: var(--text-main);
+  text-align: center;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  margin: 0 0 1.5rem 0;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  text-align: left;
+}
+
+.formGroup label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+
+.btnSubmit {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 0.8rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.4rem;
+  transition: all 0.2s;
+}
+
+[data-theme="dark"] .btnSubmit { background: #7c3aed; }
+.btnSubmit:hover { background: #1d4ed8; }
+[data-theme="dark"] .btnSubmit:hover { background: #6d28d9; }
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin: 1.2rem 0;
+}
+
+.divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
+.divider:not(:empty)::before { margin-right: .75em; }
+.divider:not(:empty)::after { margin-left: .75em; }
+
+.btnGoogle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+[data-theme="dark"] .btnGoogle { background: rgba(30, 41, 59, 0.5); }
+.btnGoogle:hover { background: var(--btn-hover-bg); }

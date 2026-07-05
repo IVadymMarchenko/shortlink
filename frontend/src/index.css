@@ -1,0 +1,76 @@
+:root {
+  --body-bg: #f8fafc;
+  --grid-glow: radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 0%, #f8fafc 80%);
+  --card-bg: rgba(255, 255, 255, 0.7); 
+  
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --border-color: #b3bac3; 
+  --btn-hover-bg: rgba(241, 245, 249, 0.9);
+
+  /* Мягкие пастельные переливы для светлой темы */
+  --wave-color-1: rgba(99, 102, 241, 0.12);  /* Indigo */
+  --wave-color-2: rgba(168, 85, 247, 0.12);  /* Purple */
+  --wave-color-3: rgba(59, 130, 246, 0.08);  /* Blue */
+}
+
+[data-theme="dark"] {
+  --body-bg: #121212;       
+  --grid-glow: radial-gradient(circle at 50% 30%, rgba(30, 30, 30, 0) 0%, #121212 80%);
+  --card-bg: rgba(30, 30, 30, 0.7); 
+  
+  --text-main: #f3f4f6;     
+  --text-muted: #9ca3af;    
+  --border-color: rgba(75, 85, 99, 0.4); 
+  --btn-hover-bg: rgba(55, 65, 81, 0.8);
+
+  /* Сочный неоновый киберпанк для тёмной темы */
+  --wave-color-1: rgba(99, 102, 241, 0.22);  
+  --wave-color-2: rgba(236, 72, 153, 0.18);  /* Pink/Magenta */
+  --wave-color-3: rgba(14, 165, 233, 0.18);  /* Sky Blue */
+}
+
+body {
+  margin: 0;
+  min-height: 100vh; /* Позволяет body расти бесконечно вниз вместе со списком ссылок */
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  background-color: var(--body-bg);
+  position: relative;
+
+  /* Красивые холмы-градиенты */
+  background-image: 
+    radial-gradient(70% 85% at 15% 95%, var(--wave-color-1) 0%, transparent 80%),
+    radial-gradient(70% 85% at 85% 95%, var(--wave-color-2) 0%, transparent 80%),
+    radial-gradient(60% 80% at 50% 100%, var(--wave-color-3) 0%, transparent 75%);
+  
+  background-repeat: no-repeat;
+  background-attachment: fixed; /* ПРИКЛЕИВАЕТ градиент к экрану, чтобы он не улетал при скролле */
+}
+
+/* Дополнительное глубокое рассеивание поверх фона */
+body::before {
+  content: '';
+  position: fixed; /* Заменяем absolute на fixed, чтобы маска не обрывалась внизу */
+  top: 0; 
+  left: 0; 
+  right: 0; 
+  bottom: 0;
+  z-index: -1; 
+  pointer-events: none;
+  background: var(--grid-glow);
+  background-attachment: fixed;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Меняем фиксированную высоту на минимальную */
+  position: relative;
+  z-index: 1;
+}
+
+* { 
+  box-sizing: border-box; 
+}

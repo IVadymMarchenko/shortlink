@@ -1,0 +1,197 @@
+.overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal {
+  background: var(--card-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+  width: 90%;
+  max-width: 650px;
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.3);
+  animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  color: var(--text-main);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.8rem; /* Уменьшили с 1.5rem, чтобы поджать шапку */
+}
+
+.titleGroup {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.titleGroup h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.analyticsIcon {
+  color: #6366f1;
+}
+
+[data-theme="dark"] .analyticsIcon {
+  color: #a78bfa;
+}
+
+.linkName {
+  margin: 0.2rem 0 0 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-family: monospace;
+}
+
+.btnClose {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.btnClose:hover {
+  color: var(--text-main);
+  background: var(--btn-hover-bg);
+}
+
+/* Виджеты */
+.widgetsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem; /* Уменьшили с 1.5rem, карточка с графиком прижмется ближе */
+}
+
+.widgetCard {
+  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+[data-theme="dark"] .widgetCard {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.widgetLabel {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.widgetValue {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* Разделы графиков */
+.chartSection, .pieCard {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1.2rem;
+  margin-bottom: 1rem; /* Уменьшили нижний отступ, чтобы подтянуть и круговые графики */
+}
+
+[data-theme="dark"] .chartSection, 
+[data-theme="dark"] .pieCard {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.chartSection h4, .pieCard h4 {
+  margin: 0 0 1rem 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-main);
+}
+
+.mainChartContainer {
+  margin-top: 0.5rem;
+}
+
+/* Круговые графики */
+.bottomChartsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.pieCard {
+  margin-bottom: 0;
+}
+
+.pieFlex {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.legend {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.legend li {
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-main);
+}
+
+.legend li span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.96); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@media (max-width: 600px) {
+  .widgetsGrid, .bottomChartsGrid {
+    grid-template-columns: 1fr;
+  }
+}
