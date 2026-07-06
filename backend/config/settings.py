@@ -203,7 +203,14 @@ AUTH_USER_MODEL = 'users_app.User'
 
 
 # Разрешаем фронтенду слать запросы (добавь в конец файла)
-
 CORS_ORIGIN_ALLOW_ALL = True
 
+# КРИТИЧЕСКИ ВАЖНО: Разрешаем передачу кук (JWT-токенов) через CORS
 CORS_ALLOW_CREDENTIALS = True
+
+# Настройки для дружбы с фронтендом:
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # Порт твоего React-приложения (поменяй, если у тебя другой)
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",  # На случай, если старый CRA
+]

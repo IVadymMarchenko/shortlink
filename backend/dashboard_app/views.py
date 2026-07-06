@@ -5,12 +5,15 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
 from .serializers import DashboardUserSerializer
+from users_app.authentication import JWTAuthentication
 
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
 class DashboardInfoView(APIView):
+    # Явно указываем Джанго использовать твой JWT из кук, минуя стандартную CSRF-защиту сессий
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):

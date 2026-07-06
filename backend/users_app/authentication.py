@@ -11,6 +11,8 @@ class JWTAuthentication(BaseAuthentication):
 
     def authenticate(self, request):
         token = request.COOKIES.get("jwt")
+        print(token,"TOKEN")
+        
 
         if not token:
             return None  # важно: не ошибка, а "нет аутентификации"
