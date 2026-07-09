@@ -3,14 +3,13 @@ from rest_framework import serializers
 from .models import ShortLink,LinkAnalytics
 
 class ShortLinkCreateSerializer(serializers.ModelSerializer):
-    # Создаем виртуальное поле для полной ссылки
     short_url = serializers.SerializerMethodField()
+    # allow_blank=True разрешает фронтенду слать пустую строку
+    short_code = serializers.CharField(required=False, allow_blank=True, max_length=50)
 
     class Meta:
         model = ShortLink
-        # Добавляем short_url в список возвращаемых полей
         fields = ['id', 'original_url', 'short_code', 'short_url', 'created_at', 'clicks_count']
-
 
     def get_short_url(self, obj):
         request = self.context.get('request')
@@ -18,8 +17,35 @@ class ShortLinkCreateSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(f"/{obj.short_code}/")
         return f"/{obj.short_code}/"
 
+    def validate_short_code(self, value):
+        # Если поле пустое (пробелы или пустая строка), возвращаем None, чтобы не ломать if в модели
+        if not value or value.strip() == "":
+            return None
+            
+        value = value.strip().lower()
+        
+        # Проверяем уникальность кастомного слага
+        if ShortLink.objects.filter(short_code=value).exists():
+            raise serializers.ValidationError("slug_already_taken")
+            
+        return value
+
     def create(self, validated_data):
         user = self.context['request'].user
+        
+        # Проверяем подписку
+        try:
+            plan_name = user.subscription.plan.name.lower()
+        except AttributeError:
+            plan_name = 'free'
+
+        is_pro = 'pro' in plan_name or 'popular' in plan_name
+        short_code = validated_data.get('short_code')
+
+        # Защита: если юзер FREE, принудительно стираем то, что он прислал в обход фронтенда
+        if not is_pro or short_code is None:
+            validated_data.pop('short_code', None) # Удаляем полностью, чтобы включился метод save() модели
+
         return ShortLink.objects.create(user=user, **validated_data)
     
 

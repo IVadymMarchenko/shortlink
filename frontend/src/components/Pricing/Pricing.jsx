@@ -1,16 +1,39 @@
 import React, { useState } from 'react';
 import styles from './Pricing.module.css';
-import { useLang } from '../../context/LanguageContext'; // 1. Импортируем хук
+import { useLang } from '../../context/LanguageContext';
 
-export default function Pricing() {
-  const { t } = useLang(); // 2. Инициализируем t()
+export default function Pricing({ onPurchase, currentPlanSlug }) {
+  // Достаем функцию t и текущий язык (lang/currentLang) напрямую из твоего хука контекста
+  const { t, lang, currentLang } = useLang(); 
   const [selectedPlan, setSelectedPlan] = useState(null);
-  console.log("LOAD PRICING")
+  const [isSubmitting, setIsSubmitting] = useState(false); 
 
-  // Переводы берутся динамически по id фич и планов
+  // Сравниваем slug в нижнем регистре (безопасное сравнение)
+  const userPlanSlug = currentPlanSlug ? currentPlanSlug.toLowerCase() : 'free';
+
+  // Определяем точную строку активного языка (берем из контекста, либо из localStorage как запасной вариант)
+  const activeLang = lang || currentLang || localStorage.getItem('cleanlink_lang') || 'en';
+
+  // Функция для динамического перевода кнопки "Активен"
+  const getActiveBtnText = () => {
+    const translated = t('pricing.active');
+    
+    // Если ты уже добавил ключ 'pricing.active' в JSON-файлы, используем его
+    if (translated && translated !== 'pricing.active') {
+      return translated;
+    }
+    
+    // Если ключа в файлах локализации пока нет, переводим по коду активного языка напрямую
+    if (activeLang === 'uk') return 'Активний';
+    if (activeLang === 'ru') return 'Активен';
+    return 'Active'; // Для английского и всех остальных
+  };
+
+  const activeText = getActiveBtnText();
+
   const plans = [
     {
-      id: 'base',
+      id: 'free', 
       title: t('pricing.plans.base.title'),
       price: '$0',
       desc: t('pricing.plans.base.desc'),
@@ -21,14 +44,14 @@ export default function Pricing() {
         { text: t('pricing.features.f4'), isAvailable: false },
         { text: t('pricing.features.f5'), isAvailable: false },
       ],
-      btnText: t('pricing.plans.base.btn'),
+      btnText: userPlanSlug === 'free' ? activeText : t('pricing.plans.base.btn'),
       isFeatured: false,
-      disabled: true
+      disabled: userPlanSlug === 'free' || userPlanSlug === 'popular' || userPlanSlug === 'pro'
     },
     {
-      id: 'pro',
-      title: t('pricing.plans.pro.title'),
-      price: '$9',
+      id: 'popular', 
+      title: t('pricing.plans.pro.title'), 
+      price: '$5', 
       desc: t('pricing.plans.pro.desc'),
       features: [
         { text: t('pricing.features.f6'), isAvailable: true },
@@ -37,14 +60,14 @@ export default function Pricing() {
         { text: t('pricing.features.f9'), isAvailable: true },
         { text: t('pricing.features.f10'), isAvailable: true },
       ],
-      btnText: t('pricing.plans.pro.btn'),
-      isFeatured: true,
-      disabled: false
+      btnText: userPlanSlug === 'popular' ? activeText : t('pricing.plans.pro.btn'),
+      isFeatured: true, 
+      disabled: userPlanSlug === 'popular'
     },
     {
-      id: 'business',
-      title: t('pricing.plans.business.title'),
-      price: '$29',
+      id: 'pro', 
+      title: t('pricing.plans.business.title'), 
+      price: '$10', 
       desc: t('pricing.plans.business.desc'),
       features: [
         { text: t('pricing.features.f11'), isAvailable: true },
@@ -53,15 +76,25 @@ export default function Pricing() {
         { text: t('pricing.features.f14'), isAvailable: true },
         { text: t('pricing.features.f15'), isAvailable: true },
       ],
-      btnText: t('pricing.plans.business.btn'),
+      btnText: userPlanSlug === 'pro' ? activeText : t('pricing.plans.business.btn'),
       isFeatured: false,
-      disabled: false
+      disabled: userPlanSlug === 'pro'
     }
   ];
 
   const handleSelectPlan = (plan) => {
     if (plan.disabled) return;
     setSelectedPlan(plan);
+  };
+
+  const handleExecutePayment = async () => {
+    if (!selectedPlan || !onPurchase) return;
+    setIsSubmitting(true);
+    
+    await onPurchase(selectedPlan.id);
+    
+    setIsSubmitting(false);
+    setSelectedPlan(null);
   };
 
   return (
@@ -116,9 +149,12 @@ export default function Pricing() {
               
               <button 
                 className={styles.btnConfirm} 
-                onClick={() => alert(`${t('pricing.alertSuccess')} ${selectedPlan.title}! ${t('pricing.alertCharged')} ${selectedPlan.price}`)}
+                onClick={handleExecutePayment}
+                disabled={isSubmitting}
               >
-                {t('pricing.modal.btnPay')} {selectedPlan.price}
+                {isSubmitting 
+                  ? '...' 
+                  : `${t('pricing.modal.btnPay')} ${selectedPlan.price}`}
               </button>
             </div>
             

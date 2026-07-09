@@ -9,7 +9,6 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id','name','email', 'password']
         extra_kwargs = {
-            # Пароль принимается от фронтенда, но НЕ возвращается в ответе API
             'password': {'write_only': True, 'style': {'input_type': 'password'}}
         }
 

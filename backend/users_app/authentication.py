@@ -15,7 +15,7 @@ class JWTAuthentication(BaseAuthentication):
         
 
         if not token:
-            return None  # важно: не ошибка, а "нет аутентификации"
+            return None
 
         try:
             payload = jwt.decode(

@@ -55,7 +55,8 @@ INSTALLED_APPS = [
 
     'users_app',
     'dashboard_app',
-    'links_app'
+    'links_app',
+    'pay_app',
 ]
 
 MIDDLEWARE = [

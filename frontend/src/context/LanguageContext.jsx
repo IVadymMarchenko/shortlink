@@ -4,6 +4,17 @@ const LanguageContext = createContext();
 
 const translations = {
   uk: {
+    errors: {
+      paymentSuccess: "Оплата успішна! Тариф оновлено.",
+      paymentError: "Помилка при проведенні оплати",
+      deleteConfirm: "Ви впевнені, що хочете видалити це посилання та всю його статистику?",
+      deleteError: "Не вдалося видалити посилання",
+      serverError: "Помилка з'єднання з сервером",
+      slugInvalidChars: "Дозволені лише латинські літери (A-Z), цифри, \"-\" та \"_\"",
+      slugAlreadyTaken: "Ця назва вже зайнята",
+      invalidUrlFormat: "Некоректний формат URL",
+      limitReached: "Перевищено ліміт посилань вашого тарифу"
+    },
     auth: {
       tabLogin: "Вхід",
       tabRegister: "Реєстрація",
@@ -28,6 +39,7 @@ const translations = {
       shortPassword: "Пароль має бути не меншим за 6 символів"
     },
     dashboard: {
+      welcome: "Привіт",
       title: "Скоротити нове посилання",
       longUrlLabel: "Ваше довге посилання (наприклад, з Розетки):",
       customSlugLabel: "Власне закінчення посилання (необов'язково):",
@@ -46,6 +58,7 @@ const translations = {
       readyLabel: "Готово! Ваше коротке посилання:",
       downloadPng: "Скачати PNG"
     },
+
     // ДОБАВИЛИ ТАРИФЫ
     pricing: {
       mainTitle: "Тарифні плани",
@@ -96,6 +109,17 @@ const translations = {
     }
   },
   en: {
+    errors: {
+      paymentSuccess: "Payment successful! Plan updated.",
+      paymentError: "Payment processing error",
+      deleteConfirm: "Are you sure you want to delete this link and all its statistics?",
+      deleteError: "Failed to delete link",
+      serverError: "Server connection error",
+      slugInvalidChars: "Only Latin letters (A-Z), numbers, \"-\" and \"_\" are allowed",
+      slugAlreadyTaken: "This slug is already taken",
+      invalidUrlFormat: "Invalid URL format",
+      limitReached: "Plan link limit reached"
+    },
     auth: {
       tabLogin: "Sign In",
       tabRegister: "Sign Up",
@@ -120,6 +144,7 @@ const translations = {
       shortPassword: "Password must be at least 6 characters"
     },
     dashboard: {
+      welcome: "Hello",
       title: "Shorten a new link",
       longUrlLabel: "Your long link (e.g., from Amazon):",
       customSlugLabel: "Custom link ending (optional):",

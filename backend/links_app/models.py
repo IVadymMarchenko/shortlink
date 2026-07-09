@@ -19,14 +19,14 @@ class ShortLink(models.Model):
 
 
     def save(self, *args, **kwargs):
-        if not self.short_code:
+        if not self.short_code or str(self.short_code).strip() == "":
             characters = string.ascii_letters + string.digits
             while True:
                 code = ''.join(secrets.choice(characters) for _ in range(6))
                 if not ShortLink.objects.filter(short_code=code).exists():
                     self.short_code = code
                     break 
-                    
+                
         super().save(*args, **kwargs)
 
 

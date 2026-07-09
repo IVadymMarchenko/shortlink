@@ -23,7 +23,6 @@ class ShortLinkCreateView(APIView):
     def post(self, request):
         try:
             subscription = request.user.subscription
-            
             #Сначала актуализируем тариф (сбрасываем на Free или обновляем месяц)
             subscription.check_and_update_status()
             #Вместо is_valid() просто смотрим на флаг активности (на случай бана админом)
@@ -31,15 +30,13 @@ class ShortLinkCreateView(APIView):
                 return Response(
                     {"detail": "Your subscription is suspended. Contact support."}, 
                     status=status.HTTP_403_FORBIDDEN
-                )
-                
+                )  
             max_limit = subscription.plan.max_projects 
         except AttributeError:
             return Response(
                 {"detail": "You do not have an active subscription."}, 
                 status=status.HTTP_403_FORBIDDEN
             )
-
         # 3. Считаем ссылки
         user_with_stats = (User.objects
                            .annotate(current_links_count=Count(
@@ -47,7 +44,6 @@ class ShortLinkCreateView(APIView):
                                filter=Q(links__created_at__gte=subscription.start_date)
                            ))
                            .get(id=request.user.id))
-        
         # 4. Проверяем лимиты
         if user_with_stats.current_links_count >= max_limit:
             next_update = subscription.start_date + timedelta(days=30)
@@ -70,8 +66,8 @@ class ShortLinkCreateView(APIView):
 
 
 class LinkRedirectView(View):
-    def get(self, request, short_code):
 
+    def get(self, request, short_code):
         link = get_object_or_404(ShortLink, short_code=short_code)
         AnalyticsLinkService.track_link(request, link)
         
@@ -84,12 +80,12 @@ class LinkAnalyticsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self,request,link_id):
-
         link = get_object_or_404(ShortLink,id = link_id, user = request.user)
         serializer = LinkSummaryAnalyticsSerializer(link)
         
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+
 
 class ShortLinkListView(ListAPIView):
     permission_classes = [IsAuthenticated]
@@ -97,6 +93,18 @@ class ShortLinkListView(ListAPIView):
 
     def get_queryset(self):
         return ShortLink.objects.filter(user = self.request.user).order_by('-created_at')
+    
+
+
+class ShortLinkDeleteView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def delete(self,request,pk):
+        link = get_object_or_404(ShortLink,pk=pk, user_id = request.user.id)
+        link.delete()
+
+        return Response(status = status.HTTP_204_NO_CONTENT)
     
 
     

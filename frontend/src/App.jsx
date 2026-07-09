@@ -12,7 +12,7 @@ export default function App() {
   const [lang, setLang] = useState('ru');
   const [loading, setLoading] = useState(true); 
 
-  const navigate = useNavigate(); // Хук для безопасной смены URL
+  const navigate = useNavigate();
 
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('app-theme') || 'light';
@@ -23,14 +23,12 @@ export default function App() {
     localStorage.setItem('app-theme', theme);
   }, [theme]);
 
-  // === ФУНКЦИЯ ЗАГРУЗКИ ПРОФИЛЯ ===
   const fetchUserProfile = async () => {
     try {
       const response = await api.get('/dashboard/info/'); 
       setUser(response.data); 
       setIsAuthenticated(true);
       
-      // Если пользователь обновил страницу, будучи на главной '/', перекидываем в дашборд
       if (window.location.pathname === '/') {
         navigate('/dashboard', { replace: true });
       }
@@ -46,10 +44,9 @@ export default function App() {
     fetchUserProfile();
   }, []);
 
-  // Функция вызывается ПОСЛЕ успешного ввода пароля в Login.jsx
   const handleLoginSuccess = async () => {
-    await fetchUserProfile(); // Загружаем данные юзера
-    navigate('/dashboard');   // Перенаправляем на урл /dashboard
+    await fetchUserProfile();
+    navigate('/dashboard');   
   };
 
   const toggleTheme = () => {
@@ -68,7 +65,7 @@ export default function App() {
     } finally {
       setIsAuthenticated(false);
       setUser(null);
-      navigate('/', { replace: true }); // Возвращаем на логин
+      navigate('/', { replace: true });
     }
   };
 
@@ -92,7 +89,6 @@ export default function App() {
       
       <main style={{ flex: 1 }}>
         <Routes>
-          {/* ГЛАВНАЯ СТРАНИЦА (ФОРМА ВХОДА) */}
           <Route 
             path="/" 
             element={
@@ -104,19 +100,30 @@ export default function App() {
             } 
           />
 
-          {/* ЗАЩИЩЕННАЯ СТРАНИЦА ДАШБОРДА */}
+          {/* ОСНОВНОЙ ДАШБОРД */}
           <Route 
             path="/dashboard" 
             element={
               isAuthenticated ? (
-                <Dashboard lang={lang} user={user} onLogout={handleLogout} />
+                <Dashboard lang={lang} user={user} onLogout={handleLogout} initialTab="links" />
               ) : (
                 <Navigate to="/" replace />
               )
             } 
           />
 
-          {/* НА СЛУЧАЙ ЛЕВЫХ УРЛОВ (404) — КИДАЕМ НА ГЛАВНУЮ */}
+          {/* СТРАНИЦА ТАРИФОВ */}
+          <Route 
+            path="/billing" 
+            element={
+              isAuthenticated ? (
+                <Dashboard lang={lang} user={user} onLogout={handleLogout} initialTab="billing" />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            } 
+          />
+
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

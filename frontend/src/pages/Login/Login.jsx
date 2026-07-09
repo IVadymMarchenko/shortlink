@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+import { useGoogleLogin } from '@react-oauth/google'; // ДОБАВИЛИ ИМПОРТ
 import styles from './Login.module.css';
 import Input from '../../ui/Input/Input';
 import { validateLoginForm, validateRegisterForm } from './login_validation';
 import { useLang } from '../../context/LanguageContext';
 import api from '../../api'; // Импортируем наш настроенный axios
 
-export default function Login({ onLoginSuccess }) { // Изменили проп на onLoginSuccess
+export default function Login({ onLoginSuccess }) { 
   const { t } = useLang();
   
   const [isLoginTab, setIsLoginTab] = useState(true);
@@ -15,7 +16,7 @@ export default function Login({ onLoginSuccess }) { // Изменили проп
   
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState(false);
-  const [loading, setLoading] = useState(false); // Стейт блокировки кнопки во время запроса
+  const [loading, setLoading] = useState(false); 
 
   const handleTabChange = (isLogin) => {
     setIsLoginTab(isLogin);
@@ -25,6 +26,34 @@ export default function Login({ onLoginSuccess }) { // Изменили проп
     setErrors({});
     setIsError(false);
   };
+
+  // === НАСТРОЙКА ХУКА ДЛЯ GOOGLE АВТОРИЗАЦИИ ===
+  const loginWithGoogle = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setLoading(true);
+      setErrors({});
+      try {
+        // Передаем токен в теле запроса, как того ожидает твой GoogleLoginAPIView на Django
+        await api.post('/auth/google/', { 
+          access_token: tokenResponse.access_token 
+        });
+
+        // Даем браузеру 100мс на сохранение куки в память
+        setTimeout(() => {
+          onLoginSuccess();
+        }, 100);
+      } catch (err) {
+        triggerShake();
+        setErrors({ global: 'Помилка авторизації через Google. Спробуйте пізніше.' });
+      } finally {
+        setLoading(false);
+      }
+    },
+    onError: () => {
+      triggerShake();
+      setErrors({ global: 'Не вдалося увійти через акаунт Google.' });
+    }
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,36 +78,26 @@ export default function Login({ onLoginSuccess }) { // Изменили проп
 
     try {
       if (isLoginTab) {
-        // === ВХОД ===
-        // Джанго вернет httpOnly куку с JWT-токеном
         await api.post('/login/', { email, password });
       } else {
-        // === РЕГИСТРАЦИЯ ===
-        // Сначала регистрируем через твой RegistrView
         await api.post('/register/', { name, email, password });
-        // После успешной регистрации сразу логиним пользователя, чтобы он не вводил пароль дважды
         await api.post('/login/', { email, password });
       }
-      // Даем браузеру 100мс на сохранение куки в память, прежде чем запрашивать инфо
-       setTimeout(() => {
-       onLoginSuccess();
-       }, 100);
       
-      // Вызываем коллбэк, который запросит данные профиля и переключит на Дашборд
-      onLoginSuccess();
+      // ИСПРАВЛЕНО: Убран дубликат вызова onLoginSuccess(), который шел следом за таймаутом
+      setTimeout(() => {
+        onLoginSuccess();
+      }, 100);
 
     } catch (err) {
       triggerShake();
       
-      // Обрабатываем ошибки от бэкенда Django
       if (err.response && err.response.data) {
         const data = err.response.data;
         
         if (data.detail) {
-          // Если пришла общая ошибка (например, "Неверный пароль")
           setErrors({ global: data.detail });
         } else {
-          // Если пришла точечная ошибка по полям (например, {"email": ["User with this email already exists."]})
           const fieldErrors = {};
           Object.keys(data).forEach(key => {
             fieldErrors[key] = Array.isArray(data[key]) ? data[key][0] : data[key];
@@ -93,7 +112,6 @@ export default function Login({ onLoginSuccess }) { // Изменили проп
     }
   };
 
-  // Вынесли тряску в отдельную вспомогательную функцию
   const triggerShake = () => {
     setIsError(true);
     setTimeout(() => setIsError(false), 500);
@@ -191,7 +209,8 @@ export default function Login({ onLoginSuccess }) { // Изменили проп
           <span>{t('auth.or')}</span>
         </div>
 
-        <button className={styles.btnGoogle} onClick={() => onLoginSuccess()} disabled={loading}>
+        {/* ИЗМЕНЕНО: Кнопка теперь триггерит Google-логин */}
+        <button className={styles.btnGoogle} onClick={() => loginWithGoogle()} disabled={loading}>
           <img 
             className={styles.googleIcon} 
             src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" 
