@@ -15,7 +15,8 @@ export const isValidUrl = (url) => {
 
 /**
  * Валидирует форму сокращения ссылки.
- * @param {string} longUrl - Длинная оригинальная ссылка
+ * Возвращает КЛЮЧИ переводов для мультиязычности.
+ * * @param {string} longUrl - Длинная оригинальная ссылка
  * @param {string} customSlug - Желаемое окончание ссылки
  * @param {string} userPlan - Текущий тариф пользователя ('free' или 'pro')
  * @returns {Object} { isValid: boolean, errors: { longUrl: string, customSlug: string } }
@@ -26,24 +27,23 @@ export const validateLinkForm = (longUrl, customSlug, userPlan) => {
 
   // 1. Валидация длинной ссылки
   if (!longUrl || !longUrl.trim()) {
-    errors.longUrl = 'Это поле обязательно для заполнения';
+    errors.longUrl = 'errors.urlRequired'; 
     isValid = false;
   } else if (!isValidUrl(longUrl)) {
-    errors.longUrl = 'Введите корректный URL-адрес (например, https://example.com)';
+    errors.longUrl = 'errors.urlInvalid'; 
     isValid = false;
   }
 
   // 2. Валидация кастомного окончания (только для PRO)
   if (userPlan !== 'free' && customSlug && customSlug.trim()) {
     const trimmedSlug = customSlug.trim();
-    // Разрешаем только латиницу, цифры, дефис и нижнее подчеркивание
     const slugRegex = /^[a-zA-Z0-9-_]+$/;
 
     if (!slugRegex.test(trimmedSlug)) {
-      errors.customSlug = 'Разрешены только латинские буквы, цифры, дефисы и "_"';
+      errors.customSlug = 'errors.slugInvalidChars'; 
       isValid = false;
     } else if (trimmedSlug.length < 3) {
-      errors.customSlug = 'Окончание должно быть не короче 3 символов';
+      errors.customSlug = 'errors.slugTooShort'; 
       isValid = false;
     }
   }

@@ -5,6 +5,10 @@ const LanguageContext = createContext();
 const translations = {
   uk: {
     errors: {
+      slugTooShort: "Закінчення посилання має бути не коротшим за 3 символи!", // <-- ДОДАЛИ ЦЕЙ РЯДОК
+      "urlRequired": "Це поле є обов'язковим для заповнення",
+      "urlInvalid": "Введіть коректну URL-адресу (наприклад, https://example.com)",
+      slugInvalidChars: 'Дозволені лише латинські літери (A-Z), цифри, \"-\" та \"_\"',
       paymentSuccess: "Оплата успішна! Тариф оновлено.",
       paymentError: "Помилка при проведенні оплати",
       deleteConfirm: "Ви впевнені, що хочете видалити це посилання та всю його статистику?",
@@ -39,6 +43,10 @@ const translations = {
       shortPassword: "Пароль має бути не меншим за 6 символів"
     },
     dashboard: {
+      planPro: "👑 PRO",
+      planFree: "⚡ FREE",
+      createdLabel: "Створено",
+      deleteLabel: "Видалити",
       welcome: "Привіт",
       title: "Скоротити нове посилання",
       longUrlLabel: "Ваше довге посилання (наприклад, з Розетки):",
@@ -110,6 +118,10 @@ const translations = {
   },
   en: {
     errors: {
+      slugTooShort: "Custom slug must be at least 3 characters long",
+      "urlRequired": "This field is required",
+      "urlInvalid": "Please enter a valid URL (e.g., https://example.com)",
+      slugInvalidChars: 'Only Latin letters (A-Z), numbers, \"-\" and \"_\" are allowed',
       paymentSuccess: "Payment successful! Plan updated.",
       paymentError: "Payment processing error",
       deleteConfirm: "Are you sure you want to delete this link and all its statistics?",
@@ -144,6 +156,10 @@ const translations = {
       shortPassword: "Password must be at least 6 characters"
     },
     dashboard: {
+      planPro: "👑 PRO",
+      planFree: "⚡ FREE",
+      createdLabel: "Created",
+      deleteLabel: "Delete",
       welcome: "Hello",
       title: "Shorten a new link",
       longUrlLabel: "Your long link (e.g., from Amazon):",

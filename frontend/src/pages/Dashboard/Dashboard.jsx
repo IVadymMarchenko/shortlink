@@ -1,27 +1,25 @@
+// src/pages/Dashboard/Dashboard.jsx
 import React from 'react';
 import styles from './Dashboard.module.css';
 import Sidebar from '../../components/Sidebar/Sidebar';
 import Pricing from '../../components/Pricing/Pricing';
 import LinkStatsModal from '../../components/LinkStatsModal/LinkStatsModal';
-
-// Импорт кастомного хука бизнес-логики (лежит в этой же папке)
 import { useDashboard } from './useDashboard';
 
-// Импорт декомпозированных UI компонентов из новой подпапки components
 import UserWelcomeCard from './components/UserWelcomeCard';
 import CreateLinkForm from './components/CreateLinkForm';
 import LinksFilterControls from './components/LinksFilterControls';
 import LinksList from './components/LinksList';
 
-export default function Dashboard({ onLogout, user, initialTab = 'links' }) {
+export default function Dashboard({ onLogout, user }) {
   const {
-    currentLang,
     activeTab,
     userPlan,
+    isLoading,
     longUrl,
     setLongUrl,
     customSlug,
-    setCustomSlug,
+    handleSlugChange,
     errors,
     setErrors,
     generatedLink,
@@ -36,19 +34,20 @@ export default function Dashboard({ onLogout, user, initialTab = 'links' }) {
     setActiveStatsLink,
     filteredAndSortedLinks,
     handlePlanPurchase,
-    handleTabChange,
     handleSubmit,
     handleDelete,
     handleCopyGenerated,
     handleCopyExisting,
     handleSearchChange,
-  } = useDashboard(user, initialTab);
+    shortLinkDomain,
+  } = useDashboard(user);
 
   return (
     <div className={styles.layout}>
-      <Sidebar activeTab={activeTab} setActiveTab={handleTabChange} onLogout={onLogout} />
+      <Sidebar onLogout={onLogout} />
 
       <main className={styles.mainContent}>
+        {/* ВКЛАДКА ССЫЛОК */}
         {activeTab === 'links' && (
           <>
             <UserWelcomeCard user={user} userPlan={userPlan} styles={styles} />
@@ -60,13 +59,11 @@ export default function Dashboard({ onLogout, user, initialTab = 'links' }) {
               errors={errors}
               setErrors={setErrors}
               customSlug={customSlug}
-              setCustomSlug={setCustomSlug}
+              handleSlugChange={handleSlugChange}
               userPlan={userPlan}
-              handleTabChange={handleTabChange}
               generatedLink={generatedLink}
               isCopied={isCopied}
               handleCopyGenerated={handleCopyGenerated}
-              currentLang={currentLang}
               styles={styles}
             />
 
@@ -79,20 +76,25 @@ export default function Dashboard({ onLogout, user, initialTab = 'links' }) {
               styles={styles}
             />
 
-            <LinksList
-              filteredAndSortedLinks={filteredAndSortedLinks}
-              visibleCount={visibleCount}
-              setVisibleCount={setVisibleCount}
-              copiedLinkId={copiedLinkId}
-              handleCopyExisting={handleCopyExisting}
-              setActiveStatsLink={setActiveStatsLink}
-              handleDelete={handleDelete}
-              currentLang={currentLang}
-              styles={styles}
-            />
+            {isLoading ? (
+              <div className={styles.loader}>Loading links...</div>
+            ) : (
+              <LinksList
+                filteredAndSortedLinks={filteredAndSortedLinks}
+                visibleCount={visibleCount}
+                setVisibleCount={setVisibleCount}
+                copiedLinkId={copiedLinkId}
+                handleCopyExisting={handleCopyExisting}
+                setActiveStatsLink={setActiveStatsLink}
+                handleDelete={handleDelete}
+                styles={styles}
+                shortLinkDomain={shortLinkDomain}
+              />
+            )}
           </>
         )}
 
+        {/* ВКЛАДКА БИЛЛИНГА */}
         {activeTab === 'billing' && (
           <Pricing onPurchase={handlePlanPurchase} currentPlanSlug={user?.plan_name} />
         )}

@@ -23,9 +23,9 @@
 
 /* Заголовки */
 .title {
-  color: var(--text-main) !important;
+  color: var(--text-main);
   font-weight: 700;
-  margin-bottom: 0; /* Убираем нижний отступ, так как теперь есть панель фильтров */
+  margin-bottom: 0;
   letter-spacing: -0.025em;
 }
 
@@ -36,7 +36,7 @@
 }
 
 /* ======================================================= */
-/* 2. КАРТОЧКА ФОРМЫ                                       */
+/* 2. КАРТОЧКА ФОРМЫ И ИНПУТЫ                              */
 /* ======================================================= */
 .card {
   background: var(--card-bg);
@@ -55,9 +55,53 @@
 }
 
 .card h3 {
-  color: var(--text-main) !important;
-  font-weight: 700 !important;
-  margin-bottom: 2rem !important;
+  color: var(--text-main);
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 2rem;
+}
+
+/* Отступы вместо инлайн-стилей */
+.formInputSpacing {
+  margin-bottom: 1rem;
+}
+
+.formInputSpacingLast {
+  margin-bottom: 1.5rem;
+}
+
+.inputDisabled {
+  opacity: 0.65;
+}
+
+.labelWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* Стильная кнопка-бейдж PRO */
+.proBadgeBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ffffff;
+  border: none;
+  border-radius: 20px;
+  padding: 0.2rem 0.6rem;
+  background-image: linear-gradient(135deg, #6366f1, #3b82f6);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+  cursor: pointer;
+  margin-left: auto;
+  transition: transform 0.2s ease;
+  text-decoration: none;
+}
+
+.proBadgeBtn:hover {
+  transform: scale(1.05);
 }
 
 /* Кнопки создания */
@@ -98,6 +142,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-top: 1.5rem;
   animation: fadeIn 0.3s ease-in-out;
 }
 
@@ -148,11 +193,18 @@
 }
 
 .qrCodeHolder {
-  background: white;
-  padding: 0.5rem;
+  --qr-bg: #ffffff;
+  --qr-fg: #000000;
+  background: var(--qr-bg);
+  padding: 0.6rem;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   display: inline-flex;
+}
+
+[data-theme="dark"] .qrCodeHolder {
+  --qr-bg: #e2e8f0; 
+  --qr-fg: #0f172a;
 }
 
 .btnDownloadQr {
@@ -231,7 +283,7 @@
 .sortSelect {
   cursor: pointer;
   appearance: none;
-  padding-right: 2.5rem; /* Оставили отступ справа под стрелочку CSS, если будет кастомная */
+  padding-right: 2.5rem;
 }
 
 /* ======================================================= */
@@ -384,14 +436,13 @@
     margin-left: 0 !important;
     width: 100% !important;
     padding: 1.5rem 1rem;
-    padding-bottom: 90px; /* Чтоб нижний мобильный таб-бар не перекрывал контент */
+    padding-bottom: 90px;
   }
 
   .card {
     padding: 1.5rem;
   }
 
-  /* Адаптив для блока результата и QR */
   .resultFlexWrapper {
     flex-direction: column;
     align-items: stretch;
@@ -404,7 +455,6 @@
     padding-top: 1.5rem;
   }
 
-  /* Адаптив для панели фильтров */
   .filterSection {
     flex-direction: column;
     align-items: flex-start;
@@ -418,10 +468,9 @@
   }
 
   .searchBox, .sortBox, .searchInput, .sortSelect {
-    width: 100%; /* Растягиваем инпуты поиска и сортировки на всю ширину мобилки */
+    width: 100%;
   }
 
-  /* Элемент ссылки перестраиваем в вертикальный стек */
   .linkItem {
     flex-direction: column;
     align-items: flex-start;
@@ -433,7 +482,6 @@
     max-width: 100%;
   }
 
-  /* Кнопки и клики на всю ширину */
   .linkStats {
     width: 100%;
     justify-content: space-between;
@@ -446,34 +494,88 @@
   }
 }
 
+.loadMoreWrapper {
+  text-align: center;
+  margin-top: 1rem;
+}
 
-/* Обертка для текста лейбла и кнопки */
-.labelWrapper {
+.btnLoadMore {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 0.6rem 2.5rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.btnLoadMore:hover {
+  background: var(--btn-hover-bg);
+  border-color: var(--text-muted);
+}
+
+/* Опасное действие (удаление) красим через CSS-класс, а не инлайн */
+.btnIconDelete {
+  color: #ef4444;
+}
+
+.btnIconDelete:hover {
+  background: rgba(239, 68, 68, 0.08) !important;
+  color: #dc2626 !important;
+}
+
+/* Подсветка для иконки успешного копирования */
+.btnIconSuccess {
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.2);
+  background: rgba(16, 185, 129, 0.04);
+}
+
+[data-theme="dark"] .btnIconSuccess {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+
+
+/* Контейнер приветственной карточки */
+.welcomeCard {
+  margin-bottom: 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
+  padding: 1.2rem 1.5rem;
 }
 
-/* Стильная кнопка-бейдж PRO */
-.proBadgeBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #ffffff;
-  border: none;
+.welcomeTitle {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--text-main);
+}
+
+.welcomeEmail {
+  margin: 0.2rem 0 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* Бейдж текущего тарифа */
+.planBadge {
+  padding: 0.4rem 1rem;
   border-radius: 20px;
-  padding: 0.2rem 0.6rem;
-  background-image: linear-gradient(135deg, #6366f1, #3b82f6);
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
-  cursor: pointer;
-  margin-left: auto;
-  transition: transform 0.2s ease;
+  font-weight: bold;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+  background: #3b82f6; /* Дефолтный синий для FREE */
 }
 
-/* Элегантный ховер на чистом CSS вместо JS-костылей */
-.proBadgeBtn:hover {
-  transform: scale(1.05);
+/* Модификатор для PRO тарифа */
+.planBadgePro {
+  background: linear-gradient(135deg, #eab308, #ca8a04);
 }

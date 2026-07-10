@@ -1,54 +1,51 @@
+// src/components/Sidebar/Sidebar.jsx
 import React from 'react';
-import { Link2, CreditCard, LogOut } from 'lucide-react';
+import { NavLink } from 'react-router-dom'; 
+import { Link2, CreditCard, LogOut } from 'lucide-react'; 
 import styles from "./Sidebar.module.css"; 
-import { useLang } from '../../context/LanguageContext'; // 1. Импортируем хук
+import { useLang } from '../../context/LanguageContext'; 
 
-export default function Sidebar({ activeTab, setActiveTab, onLogout }) {
-  const { lang } = useLang(); // 2. Достаем текущий язык ('uk' или 'en')
+const MENU_TRANSLATIONS = {
+  uk: {
+    links: 'Мої посилання',
+    billing: 'Тарифи',
+    logout: 'Вийти'
+  },
+  en: {
+    links: 'My Links',
+    billing: 'Pricing',
+    logout: 'Log Out'
+  }
+};
 
-  // Локальный словарь для элементов сайдбара
-  const menuTranslations = {
-    uk: {
-      links: 'Мої посилання',
-      billing: 'Тарифи',
-      logout: 'Вийти'
-    },
-    en: {
-      links: 'My Links',
-      billing: 'Pricing',
-      logout: 'Log Out'
-    }
-  };
+export default function Sidebar({ onLogout }) { 
+  const { lang } = useLang(); 
+  const tMenu = MENU_TRANSLATIONS[lang] || MENU_TRANSLATIONS.en;
 
-  const tMenu = menuTranslations[lang];
-
-  // Массив пунктов меню использует переведенные строки
   const menuItems = [
-    { id: 'links', label: tMenu.links, icon: <Link2 size={20} /> },
-    { id: 'billing', label: tMenu.billing, icon: <CreditCard size={20} /> },
+    { path: '/dashboard', label: tMenu.links, icon: <Link2 size={20} /> },
+    { path: '/billing', label: tMenu.billing, icon: <CreditCard size={20} /> },
   ];
 
   console.log("LOAD SIDEBAR");
 
   return (
     <aside className={styles.sidebar}>
-    
-      {/* Навигация */}
       <nav className={styles.sidebarMenu}>
         {menuItems.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            className={`${styles.sidebarItem} ${activeTab === item.id ? styles.active : ''}`}
-            onClick={() => setActiveTab(item.id)}
+          <NavLink
+            key={item.path}
+            to={item.path}
+            className={({ isActive }) => 
+              `${styles.sidebarItem} ${isActive ? styles.active : ''}`
+            }
           >
             {item.icon}
             <span className={styles.itemLabel}>{item.label}</span>
-          </button>
+          </NavLink>
         ))}
       </nav>
 
-      {/* Кнопка выхода в самом низу */}
       <div className={styles.sidebarFooter}>
         <button 
           type="button" 

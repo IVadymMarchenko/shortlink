@@ -1,16 +1,17 @@
+// src/App.jsx
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import Login from './pages/Login/Login';
 import Dashboard from './pages/Dashboard/Dashboard';
-import api from './api'; 
+import api from './api';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null); 
+  const [user, setUser] = useState(null);
   const [lang, setLang] = useState('ru');
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
 
@@ -25,10 +26,10 @@ export default function App() {
 
   const fetchUserProfile = async () => {
     try {
-      const response = await api.get('/dashboard/info/'); 
-      setUser(response.data); 
+      const response = await api.get('/dashboard/info/');
+      setUser(response.data);
       setIsAuthenticated(true);
-      
+
       if (window.location.pathname === '/') {
         navigate('/dashboard', { replace: true });
       }
@@ -46,7 +47,7 @@ export default function App() {
 
   const handleLoginSuccess = async () => {
     await fetchUserProfile();
-    navigate('/dashboard');   
+    navigate('/dashboard');
   };
 
   const toggleTheme = () => {
@@ -59,7 +60,7 @@ export default function App() {
 
   const handleLogout = async () => {
     try {
-      await api.post('/logout/'); 
+      await api.post('/logout/');
     } catch (e) {
       console.log('Ошибка при логауте на сервере');
     } finally {
@@ -79,49 +80,49 @@ export default function App() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <Header 
-        theme={theme} 
-        toggleTheme={toggleTheme} 
-        lang={lang} 
+      <Header
+        theme={theme}
+        toggleTheme={toggleTheme}
+        lang={lang}
         toggleLang={toggleLang}
-        onLogout={handleLogout} 
+        onLogout={handleLogout}
       />
-      
+
       <main style={{ flex: 1 }}>
         <Routes>
-          <Route 
-            path="/" 
+          <Route
+            path="/"
             element={
               isAuthenticated ? (
                 <Navigate to="/dashboard" replace />
               ) : (
                 <Login onLoginSuccess={handleLoginSuccess} lang={lang} />
               )
-            } 
+            }
           />
 
           {/* ОСНОВНОЙ ДАШБОРД */}
-          <Route 
-            path="/dashboard" 
+          <Route
+            path="/dashboard"
             element={
               isAuthenticated ? (
-                <Dashboard lang={lang} user={user} onLogout={handleLogout} initialTab="links" />
+                <Dashboard user={user} onLogout={handleLogout} />
               ) : (
                 <Navigate to="/" replace />
               )
-            } 
+            }
           />
 
           {/* СТРАНИЦА ТАРИФОВ */}
-          <Route 
-            path="/billing" 
+          <Route
+            path="/billing"
             element={
               isAuthenticated ? (
-                <Dashboard lang={lang} user={user} onLogout={handleLogout} initialTab="billing" />
+                <Dashboard user={user} onLogout={handleLogout} />
               ) : (
                 <Navigate to="/" replace />
               )
-            } 
+            }
           />
 
           <Route path="*" element={<Navigate to="/" replace />} />
