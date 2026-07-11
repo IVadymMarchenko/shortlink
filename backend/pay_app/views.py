@@ -35,8 +35,14 @@ class FakePaymentView(APIView):
         subscription.is_active = True
         subscription.save()
 
+        # ОПРЕДЕЛЯЕМ ЯЗЫК: достаем язык из заголовков запроса для красивого ответа
+        lang = request.META.get('HTTP_ACCEPT_LANGUAGE', 'uk')
+        display_name = plan.name_en if 'en' in lang else plan.name_uk
+
+        # ИСПРАВЛЕНО: Заменили plan.name на локализованный display_name
         return Response({
             "status": "success",
-            "message": f"Successfully subscribed to {plan.name}",
-            "plan_name": plan.name # возвращаем имя для фронта
+            "message": f"Successfully subscribed to {display_name}",
+            "plan_name": display_name,
+            "plan_slug": plan.slug.toLowerCase() if hasattr(plan.slug, 'toLowerCase') else plan.slug # Передаем чистый слаг тарифа
         }, status=status.HTTP_200_OK)

@@ -1,21 +1,23 @@
-# users_app/admin.py
+from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django import forms
 from .models import User, PricingPlan, UserSubscriptions
 
-# 1. Создаем Inline для подписки
+
+# 1. Стек-инлайн для подписки внутри карточки пользователя
 class UserSubscriptionInline(admin.StackedInline):
     model = UserSubscriptions
-    can_delete = False  # Чтобы случайно не удалить подписку целиком
+    can_delete = False
     verbose_name_plural = 'Текущая подписка пользователя'
     fk_name = 'user'
-    extra = 1  # Если подписки нет, покажет пустую форму для создания
+    extra = 1
+
 
 class UserAdminForm(forms.ModelForm):
     class Meta:
         model = User
         fields = '__all__'
+
 
 class UserAdmin(BaseUserAdmin):
     form = UserAdminForm
@@ -40,33 +42,44 @@ class UserAdmin(BaseUserAdmin):
         }),
     )
 
-    # 2. ПОДКЛЮЧАЕМ INLINE СЮДА
     inlines = [UserSubscriptionInline]
 
+    # ИСПРАВЛЕНО: Теперь безопасно берём slug или name_uk вместо удаленного name
     def get_plan(self, obj):
         sub = getattr(obj, 'subscription', None)
-        return sub.plan.name if sub else "Нет подписки"
+        if sub and sub.plan:
+            return f"{sub.plan.name_uk} ({sub.plan.slug})"
+        return "Нет подписки"
     
     get_plan.short_description = 'Текущий тариф'
 
 
-class PricingPlanAdminForm(forms.ModelForm):
-    class Meta:
-        model = PricingPlan
-        fields = '__all__'
-        widgets = {
-            # Вот здесь мы заставляем админку показать Select-выпадающий список
-            'name': forms.Select(choices=[
-                ('Free', 'Свободный (Free)'),
-                ('Popular', 'Популярный (Popular)'),
-                ('Pro', 'Профессиональный (Pro)'),
-            ])
-        }
-
-# Регистрация моделей
-admin.site.register(User, UserAdmin)
-admin.site.register(UserSubscriptions)
-
+# ИСПРАВЛЕНО: Старая форма PricingPlanAdminForm удалена, так как поля 'name' больше нет.
+# Вместо этого настраиваем удобное отображение полей тарифа в админке.
 @admin.register(PricingPlan)
 class PricingPlanAdmin(admin.ModelAdmin):
-    form = PricingPlanAdminForm  # Подключаем нашу форму к админке
+    list_display = ('slug', 'name_uk', 'name_en', 'price', 'max_projects', 'is_active')
+    list_editable = ('is_active',)
+    search_fields = ('slug', 'name_uk', 'name_en')
+    
+    fieldsets = (
+        ('Основные настройки', {
+            'fields': ('slug', 'price', 'max_projects', 'is_active')
+        }),
+        ('Локализация имени и описания', {
+            'fields': ('name_uk', 'name_en', 'description_uk', 'description_en')
+        }),
+        ('Доступные фичи (Зеленые галочки)', {
+            'fields': ('features_uk', 'features_en'),
+            'description': 'Заполняйте в формате JSON-массива: ["Фича 1", "Фича 2"]'
+        }),
+        ('Недоступные фичи (Красные крестики)', {
+            'fields': ('features_disabled_uk', 'features_disabled_en'),
+            'description': 'Заполняйте только для тарифа Free: ["Кастомные домены"]'
+        }),
+    )
+
+
+# Регистрация оставшихся моделей
+admin.site.register(User, UserAdmin)
+admin.site.register(UserSubscriptions)

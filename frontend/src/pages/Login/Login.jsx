@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { useGoogleLogin } from '@react-oauth/google'; // ДОБАВИЛИ ИМПОРТ
+import { useGoogleLogin } from '@react-oauth/google';
 import styles from './Login.module.css';
 import Input from '../../ui/Input/Input';
 import { validateLoginForm, validateRegisterForm } from './login_validation';
 import { useLang } from '../../context/LanguageContext';
-import api from '../../api'; // Импортируем наш настроенный axios
+import api from '../../api';
 
 export default function Login({ onLoginSuccess }) { 
   const { t } = useLang();
@@ -27,31 +27,35 @@ export default function Login({ onLoginSuccess }) {
     setIsError(false);
   };
 
-  // === НАСТРОЙКА ХУКА ДЛЯ GOOGLE АВТОРИЗАЦИИ ===
+  // Хелпер для локализации системных ключей или вывода текста от бэкенда «как есть»
+  const formatError = (errorKey) => {
+    if (!errorKey) return '';
+    return errorKey.includes(' ') ? errorKey : t(errorKey);
+  };
+
+  // === GOOGLE АВТОРИЗАЦИЯ ===
   const loginWithGoogle = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       setLoading(true);
       setErrors({});
       try {
-        // Передаем токен в теле запроса, как того ожидает твой GoogleLoginAPIView на Django
         await api.post('/auth/google/', { 
           access_token: tokenResponse.access_token 
         });
 
-        // Даем браузеру 100мс на сохранение куки в память
         setTimeout(() => {
           onLoginSuccess();
         }, 100);
       } catch (err) {
         triggerShake();
-        setErrors({ global: 'Помилка авторизації через Google. Спробуйте пізніше.' });
+        setErrors({ global: 'errors.googleAuthError' });
       } finally {
         setLoading(false);
       }
     },
     onError: () => {
       triggerShake();
-      setErrors({ global: 'Не вдалося увійти через акаунт Google.' });
+      setErrors({ global: 'errors.googleCancelError' });
     }
   });
 
@@ -59,13 +63,10 @@ export default function Login({ onLoginSuccess }) {
     e.preventDefault();
     if (loading) return;
     
-    let result;
-
-    if (isLoginTab) {
-      result = validateLoginForm(email, password);
-    } else {
-      result = validateRegisterForm(name, email, password);
-    }
+    // 1. Валидация на фронтенде
+    let result = isLoginTab 
+      ? validateLoginForm(email, password) 
+      : validateRegisterForm(name, email, password);
 
     if (!result.isValid) {
       setErrors(result.errors);
@@ -77,14 +78,13 @@ export default function Login({ onLoginSuccess }) {
     setLoading(true);
 
     try {
-      if (isLoginTab) {
-        await api.post('/login/', { email, password });
-      } else {
-        await api.post('/register/', { name, email, password });
-        await api.post('/login/', { email, password });
-      }
+      // 2. Динамически определяем эндпоинт и тело запроса
+      const endpoint = isLoginTab ? '/login/' : '/register/';
+      const payload = isLoginTab ? { email, password } : { name, email, password };
+
+      // 3. Отправляем ОДИН запрос вместо старого паровозика
+      await api.post(endpoint, payload);
       
-      // ИСПРАВЛЕНО: Убран дубликат вызова onLoginSuccess(), который шел следом за таймаутом
       setTimeout(() => {
         onLoginSuccess();
       }, 100);
@@ -92,9 +92,8 @@ export default function Login({ onLoginSuccess }) {
     } catch (err) {
       triggerShake();
       
-      if (err.response && err.response.data) {
+      if (err.response?.data) {
         const data = err.response.data;
-        
         if (data.detail) {
           setErrors({ global: data.detail });
         } else {
@@ -105,7 +104,7 @@ export default function Login({ onLoginSuccess }) {
           setErrors(fieldErrors);
         }
       } else {
-        setErrors({ global: 'Что-то пошло не так. Попробуйте позже.' });
+        setErrors({ global: 'errors.fallbackError' });
       }
     } finally {
       setLoading(false);
@@ -148,8 +147,8 @@ export default function Login({ onLoginSuccess }) {
 
         {/* ГЛОБАЛЬНАЯ ОШИБКА ОТ СЕРВЕРА */}
         {errors.global && (
-          <div style={{ color: '#ef4444', textAlign: 'center', marginBottom: '1rem', fontSize: '0.9rem', fontWeight: '500' }}>
-            {errors.global}
+          <div className={styles.globalError}>
+            {formatError(errors.global)}
           </div>
         )}
 
@@ -167,7 +166,7 @@ export default function Login({ onLoginSuccess }) {
                 if (errors.name) setErrors(prev => ({ ...prev, name: '' }));
               }}
               required={!isLoginTab}
-              error={errors.name ? (t(errors.name) || errors.name) : ''}
+              error={formatError(errors.name)}
               disabled={loading}
             />
           </div>
@@ -182,7 +181,7 @@ export default function Login({ onLoginSuccess }) {
               if (errors.email) setErrors(prev => ({ ...prev, email: '' }));
             }}
             required
-            error={errors.email ? (t(errors.email) || errors.email) : ''}
+            error={formatError(errors.email)}
             disabled={loading}
           />
 
@@ -196,12 +195,12 @@ export default function Login({ onLoginSuccess }) {
               if (errors.password) setErrors(prev => ({ ...prev, password: '' }));
             }}
             required
-            error={errors.password ? (t(errors.password) || errors.password) : ''}
+            error={formatError(errors.password)}
             disabled={loading}
           />
 
           <button type="submit" className={styles.btnSubmit} disabled={loading}>
-            {loading ? '...' : (isLoginTab ? t('auth.btnLogin') : t('auth.btnRegister'))}
+            {loading ? t('auth.loadingText') : (isLoginTab ? t('auth.btnLogin') : t('auth.btnRegister'))}
           </button>
         </form>
 
@@ -209,7 +208,6 @@ export default function Login({ onLoginSuccess }) {
           <span>{t('auth.or')}</span>
         </div>
 
-        {/* ИЗМЕНЕНО: Кнопка теперь триггерит Google-логин */}
         <button className={styles.btnGoogle} onClick={() => loginWithGoogle()} disabled={loading}>
           <img 
             className={styles.googleIcon} 

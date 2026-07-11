@@ -5,7 +5,15 @@ const LanguageContext = createContext();
 const translations = {
   uk: {
     errors: {
-      slugTooShort: "Закінчення посилання має бути не коротшим за 3 символи!", // <-- ДОДАЛИ ЦЕЙ РЯДОК
+      requiredField: "Це поле є обов'язковим.",
+      invalidEmail: "Введіть коректну адресу електронної пошти.",
+      passwordTooShort: "Пароль занадто короткий.",
+      userNotFound: "Неправильний email або пароль.",
+      emailAlreadyExists: "Користувач з таким email вже зареєстрований.",
+      googleAuthError: "Помилка авторизації через Google. Спробуйте пізніше.",
+      googleCancelError: "Не вдалося увійти через акаунт Google.",
+      fallbackError: "Щось пішло не так. Спробуйте пізніше.",
+      slugTooShort: "Закінчення посилання має бути не коротшим за 3 символи!",
       "urlRequired": "Це поле є обов'язковим для заповнення",
       "urlInvalid": "Введіть коректну URL-адресу (наприклад, https://example.com)",
       slugInvalidChars: 'Дозволені лише латинські літери (A-Z), цифри, \"-\" та \"_\"',
@@ -21,6 +29,7 @@ const translations = {
     },
     auth: {
       tabLogin: "Вхід",
+      loadingText: "Завантаження...",
       tabRegister: "Реєстрація",
       titleLogin: "Раді поверненню",
       titleRegister: "Створити акаунт",
@@ -118,6 +127,14 @@ const translations = {
   },
   en: {
     errors: {
+      requiredField: "This field is required.",
+      invalidEmail: "Enter a valid email address.",
+      passwordTooShort: "Password is too short.",
+      userNotFound: "Incorrect email or password.",
+      emailAlreadyExists: "A user with this email already exists.",
+      googleAuthError: "Google authentication failed. Please try again later.",
+      googleCancelError: "Failed to sign in with Google account.",
+      fallbackError: "Something went wrong. Please try again later.",
       slugTooShort: "Custom slug must be at least 3 characters long",
       "urlRequired": "This field is required",
       "urlInvalid": "Please enter a valid URL (e.g., https://example.com)",
@@ -134,6 +151,7 @@ const translations = {
     },
     auth: {
       tabLogin: "Sign In",
+      loadingText: "Loading...",
       tabRegister: "Sign Up",
       titleLogin: "Welcome Back",
       titleRegister: "Create Account",

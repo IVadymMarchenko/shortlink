@@ -8,8 +8,11 @@ from .services import create_jwt,set_auth_cookie,GoogleAuthService
 from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated
 from .authentication import JWTAuthentication
-import requests
 from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .models import PricingPlan
+from .serializers import PricingPlanSerializer
 
 
 class RegistrView(APIView):
@@ -17,9 +20,13 @@ class RegistrView(APIView):
     def post(self,request):
         serializer = UserSerializer(data = request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        user = serializer.save()
+       
+        response = Response(serializer.data)
+        
+        set_auth_cookie(response, user)
 
-        return Response(serializer.data)
+        return response
     
 
 
@@ -33,9 +40,8 @@ class LoginView(APIView):
 
         user = authenticate(email=email, password=password)
         if user is None:
-            raise AuthenticationFailed("User not found")
+            raise AuthenticationFailed("errors.userNotFound")
             
-        # Здесь была пачка повторяющегося кода — теперь её нет!
         response = Response()
         token = set_auth_cookie(response, user)
         
@@ -86,4 +92,29 @@ class GoogleLoginAPIView(APIView):
         set_auth_cookie(response, user)
         
         return response
+    
+
+
+
+
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import AllowAny  # Чтобы даже неавторизованные гости видели тарифы
+
+from .models import PricingPlan
+from .serializers import PricingPlanSerializer
+
+class PricingPlanListView(APIView):
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        # Берем только активные тарифы и сортируем их по цене (от дешевых к дорогим)
+        plans = PricingPlan.objects.filter(is_active=True).order_by('price')
+        
+        # Передаем request в context, чтобы сериализатор смог прочитать заголовок языка!
+        serializer = PricingPlanSerializer(plans, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
 

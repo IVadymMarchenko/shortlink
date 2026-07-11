@@ -47,16 +47,30 @@ class User(AbstractUser):
 
 class PricingPlan(models.Model):
     "Plan's model"
-    name = models.CharField(max_length=100,verbose_name="Plan's name")
     slug = models.SlugField(max_length=25,unique=True,verbose_name="identifier")
     price = models.DecimalField(max_digits=20,decimal_places=2,verbose_name="price")
-    description = models.TextField(blank=True,verbose_name="description")
     max_projects = models.IntegerField(default=5,verbose_name="maximum_links")
     is_active = models.BooleanField(default=True,verbose_name="status")
 
+    # Мультиязычные названия
+    name_uk = models.CharField(max_length=100, default='', verbose_name="Plan's name (UK)")
+    name_en = models.CharField(max_length=100, default='', verbose_name="Plan's name (EN)")
+
+    # Мультиязычные описания
+    description_uk = models.TextField(blank=True, verbose_name="description (UK)")
+    description_en = models.TextField(blank=True, verbose_name="description (EN)")
+
+    # Списки ДОСТУПНЫХ фич (Зеленые галочки)
+    features_uk = models.JSONField(default=list, verbose_name="Enabled features (UK)")
+    features_en = models.JSONField(default=list, verbose_name="Enabled features (EN)")
+
+    # Списки НЕДОСТУПНЫХ фич (Красные крестики — нужны только для Free тарифа)
+    features_disabled_uk = models.JSONField(default=list, blank=True, verbose_name="Disabled features (UK)")
+    features_disabled_en = models.JSONField(default=list, blank=True, verbose_name="Disabled features (EN)")
+
     def __str__(self):
-        # ЗДЕСЬ ТОЛЬКО ИМЯ И ЦЕНА. Никаких user!
-        return f"{self.name} ({self.price} USD)"
+        # ИСПРАВЛЕНО: используем slug или name_uk, так как поля name больше нет
+        return f"{self.name_uk or self.slug} ({self.price} USD)"
     
 
 class UserSubscriptions(models.Model):
@@ -98,6 +112,7 @@ class UserSubscriptions(models.Model):
                 self.save()
     
     def __str__(self):
-        return f"{self.user.name},{self.user.email} - {self.plan.name}"
+        # ИСПРАВЛЕНО: name_uk вместо name
+        return f"{self.user.name}, {self.user.email} - {self.plan.name_uk or self.plan.slug}"
 
 

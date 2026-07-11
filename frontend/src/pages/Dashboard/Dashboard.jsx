@@ -96,7 +96,7 @@ export default function Dashboard({ onLogout, user }) {
 
         {/* ВКЛАДКА БИЛЛИНГА */}
         {activeTab === 'billing' && (
-          <Pricing onPurchase={handlePlanPurchase} currentPlanSlug={user?.plan_name} />
+          <Pricing onPurchase={handlePlanPurchase} currentPlanSlug={userPlan} />
         )}
 
         {activeStatsLink && (
