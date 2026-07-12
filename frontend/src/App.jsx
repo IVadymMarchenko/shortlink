@@ -7,6 +7,12 @@ import Login from './pages/Login/Login';
 import Dashboard from './pages/Dashboard/Dashboard';
 import api from './api';
 
+// Компонент-обертка для защиты приватных роутов
+// Если пользователь не авторизован, он автоматически перенаправляется на страницу логина "/"
+function ProtectedRoute({ isAuthenticated, children }) {
+  return isAuthenticated ? children : <Navigate to="/" replace />;
+}
+
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
@@ -30,6 +36,7 @@ export default function App() {
       setUser(response.data);
       setIsAuthenticated(true);
 
+      // Если пользователь зашел на корень "/", но он авторизован — перекидываем в дашборд
       if (window.location.pathname === '/') {
         navigate('/dashboard', { replace: true });
       }
@@ -90,6 +97,7 @@ export default function App() {
 
       <main style={{ flex: 1 }}>
         <Routes>
+          {/* ПУБЛИЧНЫЙ РОУТ (ЛОГИН) */}
           <Route
             path="/"
             element={
@@ -101,30 +109,38 @@ export default function App() {
             }
           />
 
-          {/* ОСНОВНОЙ ДАШБОРД */}
+          {/* ЗАЩИЩЕННЫЙ РОУТ: ОСНОВНОЙ ДАШБОРД */}
           <Route
             path="/dashboard"
             element={
-              isAuthenticated ? (
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
                 <Dashboard user={user} onLogout={handleLogout} />
-              ) : (
-                <Navigate to="/" replace />
-              )
+              </ProtectedRoute>
             }
           />
 
-          {/* СТРАНИЦА ТАРИФОВ */}
+          {/* ЗАЩИЩЕННЫЙ РОУТ: СТРАНИЦА ТАРИФОВ */}
           <Route
             path="/billing"
             element={
-              isAuthenticated ? (
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
                 <Dashboard user={user} onLogout={handleLogout} />
-              ) : (
-                <Navigate to="/" replace />
-              )
+              </ProtectedRoute>
             }
           />
 
+          {/* Пример на будущее: как легко добавить новый приватный роут */}
+          {/* <Route
+            path="/settings"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <Settings user={user} />
+              </ProtectedRoute>
+            }
+          /> 
+          */}
+
+          {/* СЛЕПАЯ ПЕРЕАДРЕСАЦИЯ ДЛЯ ВСЕХ НЕИЗВЕСТНЫХ ССЫЛОК */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

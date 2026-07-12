@@ -19,6 +19,12 @@ class DashboardInfoView(APIView):
     def get(self, request):
         try:
             user = User.objects.select_related('subscription__plan').get(id=request.user.id)
+
+            
+            if hasattr(user, 'subscription') and user.subscription:
+                user.subscription.check_and_update_status()
+           
+
             logger.info(f"User {user.email} accessed dashboard info.")
             serializer = DashboardUserSerializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)

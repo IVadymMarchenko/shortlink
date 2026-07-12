@@ -42,6 +42,7 @@ class GoogleAuthService:
         except requests.exceptions.RequestException as e:
             logger.error(f"Google OAuth connection error: {e}")
             raise AuthenticationFailed("Failed to connect to Google identity provider.")
+        
         if response.status_code != 200:
             logger.warning(f"Invalid Google token provided. Status code: {response.status_code}")
             raise AuthenticationFailed("Invalid or expired Google token.")
@@ -56,34 +57,30 @@ class GoogleAuthService:
         if not email:
             raise AuthenticationFailed("Email verification failed: Google did not provide an email.")
 
-        # Оборачиваем работу с базой в транзакцию
         with transaction.atomic():
             # Находим или создаем пользователя
             user, created = User.objects.get_or_create(
                 email=email,
                 defaults={'is_active': True}
             )
-            # Если пользователь зашел через Google впервые — выдаем ему бесплатный тариф
+            
+            # Если пользователь зашел через Google впервые — привязываем ему тариф из админки
             if created:
                 logger.info(f"Created new user via Google OAuth: {email}")
                 
-                # Безопасно берем или создаем базовый тариф, как в сериализаторе
                 try:
+                    # Берем готовый тариф 'free' из базы
                     free_plan = PricingPlan.objects.get(slug='free')
                 except PricingPlan.DoesNotExist:
-                    free_plan = PricingPlan.objects.create(
-                        slug='free',
-                        name='Free',
-                        price=0.00,
-                        max_projects=5
-                    )
-                # Создаем подписку для нового гугл-пользователя
+                    logger.error("CRITICAL: Tried to register user via Google, but 'free' plan does not exist in DB.")
+                    raise AuthenticationFailed("Registration error: Default pricing plan is not configured. Please contact support.")
+
+                # Создаем подписку
                 UserSubscriptions.objects.create(
                     user=user,
                     plan=free_plan,
                     is_active=True
                 )
-        
         return user
 
 

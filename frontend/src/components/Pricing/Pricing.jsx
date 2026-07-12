@@ -4,8 +4,7 @@ import { useLang } from '../../context/LanguageContext';
 import api from '../../api'; // Твой Axios-клиент
 
 export default function Pricing({ onPurchase, currentPlanSlug }) {
-  // ДОБАВЬ ЭТУ СТРОКУ:
-  console.log("=== ДЕБАГ ПЛАНА В PRICING === currentPlanSlug пришел как:", currentPlanSlug);
+  
   const { t, lang, currentLang } = useLang(); 
   const [plans, setPlans] = useState([]); // Сюда грузим тарифы из Django
   const [loading, setLoading] = useState(true);
@@ -22,7 +21,6 @@ export default function Pricing({ onPurchase, currentPlanSlug }) {
     const translated = t('pricing.active');
     if (translated && translated !== 'pricing.active') return translated;
     if (activeLang === 'uk') return 'Поточний план';
-    if (activeLang === 'ru') return 'Текущий план';
     return 'Current Plan';
   };
 

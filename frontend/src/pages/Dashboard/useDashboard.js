@@ -31,24 +31,9 @@ export function useDashboard(user) {
     return 'links';
   }, [location.pathname]);
 
-const userPlan = useMemo(() => {
-    // Если в LocalStorage лежит свежекупленный план — берем его в приоритет!
-    const savedPlan = localStorage.getItem('just_bought_plan');
-    if (savedPlan) {
-      return savedPlan.toLowerCase();
-    }
-
-    if (!user || !user.plan_name) return 'free';
-    const plan = user.plan_name.toLowerCase();
-    
-    if (plan.includes('pro') || plan.includes('popular') || plan.includes('професійний')) {
-      return 'popular';
-    }
-    if (plan.includes('business') || plan.includes('бізнес') || plan.includes('бизнес')) {
-      return 'business';
-    }
-    
-    return 'free';
+  // Архитектурно чистое получение плана из профиля пользователя без гадания по строкам
+  const userPlan = useMemo(() => {
+    return user?.plan_slug ? user.plan_slug.toLowerCase() : 'free';
   }, [user]);
 
   const filteredAndSortedLinks = useMemo(() => {
@@ -70,17 +55,6 @@ const userPlan = useMemo(() => {
   useEffect(() => {
     if (user) {
       fetchUserLinks();
-    }
-  }, [user]);
-
-  // Очищаем локальное хранилище, когда пользователь зашел и данные подтянулись
-  useEffect(() => {
-    if (user) {
-      // Даем Django время обновить кэш сессии, удаляем маркер через 5 секунд
-      const timer = setTimeout(() => {
-        localStorage.removeItem('just_bought_plan');
-      }, 5000);
-      return () => clearTimeout(timer);
     }
   }, [user]);
 
@@ -130,11 +104,7 @@ const userPlan = useMemo(() => {
       const data = await linksService.purchasePlan(planSlug);
       if (data.status === 'success') {
         alert(t('errors.paymentSuccess'));
-        
-        // СОХРАНЯЕМ В ЛОКАЛ СТОРЕЙДЖ, ЧТОБЫ ФРОНТ СРАЗУ УВИДЕЛ ОБНОВЛЕНИЕ
-        localStorage.setItem('just_bought_plan', planSlug);
-        
-        window.location.reload();
+        window.location.reload(); // Перезагружаем страницу, бэкенд отдаст новый профиль со свежим plan_slug
       }
     } catch (err) {
       console.error("Ошибка при оплате:", err);

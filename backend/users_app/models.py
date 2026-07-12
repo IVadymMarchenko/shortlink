@@ -3,6 +3,9 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils import timezone
 from django.conf import settings
 from datetime import timedelta
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 
@@ -84,32 +87,34 @@ class UserSubscriptions(models.Model):
 
     def check_and_update_status(self):
         now = timezone.now()
-
-        if self.plan.slug!='Free':
+        current_slug = self.plan.slug.lower()
+        # 1. ЕСЛИ ТАРИФ НЕ БЕСПЛАТНЫЙ: проверяем, не истек ли срок действия
+        if current_slug != 'free':
             if self.end_date and now > self.end_date:
-                free_plan,created = PricingPlan.objects.get_or_create(
-                    slug = "Free",
-                    defaults={
-                        'name': "Free",
-                        'price':0.00,
-                        'max_projects': 5,
-                        'is_active': True
-                    }
-                )
-                # Откатываем юзера на бесплатный тариф
-                self.plan = free_plan
-                self.end_date = None      
-                self.start_date = now     # Сбрасываем дату отсчета лимитов на сегодня
-                self.is_active = True
-                self.save()
-                return
+                try:
+                    # Берем строго тот бесплатный тариф, который ты настроил в админке
+                    free_plan = PricingPlan.objects.get(slug='free')
+                    # Откатываем юзера на бесплатный тариф
+                    self.plan = free_plan
+                    self.end_date = None      
+                    self.start_date = now  
+                    self.is_active = True
+                    self.save()
+                    logger.info(f"Subscription expired for user {self.user.email}. Downgraded to free plan.")
+                    return
+                except PricingPlan.DoesNotExist:
+                    logger.critical("CRITICAL: 'free' pricing plan is missing in the database! Cannot downgrade user.")
+                    # Здесь можно либо оставить старый тариф, либо бросить ошибку, но главное — залогировать
             
         # 2. ЕСЛИ ТАРИФ БЕСПЛАТНЫЙ: проверяем, прошло ли 30 дней для обновления лимитов
-        if self.plan.slug == 'free':
+        elif current_slug == 'free':
             if now >= self.start_date + timedelta(days=30):
-                # Обновляем start_date. Это станет новой точкой отсчета для лимитов
                 self.start_date = now
                 self.save()
+                logger.info(f"Monthly limits reset for free user {self.user.email}.")
+    
+    def __str__(self):
+        return f"{self.user.name or self.user.email} - {self.plan.name_uk or self.plan.slug}"
     
     def __str__(self):
         # ИСПРАВЛЕНО: name_uk вместо name

@@ -13,6 +13,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import PricingPlan
 from .serializers import PricingPlanSerializer
+from .models import PricingPlan
+from .serializers import PricingPlanSerializer
+
 
 
 class RegistrView(APIView):
@@ -95,20 +98,9 @@ class GoogleLoginAPIView(APIView):
     
 
 
-
-
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import AllowAny  # Чтобы даже неавторизованные гости видели тарифы
-
-from .models import PricingPlan
-from .serializers import PricingPlanSerializer
-
 class PricingPlanListView(APIView):
 
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         # Берем только активные тарифы и сортируем их по цене (от дешевых к дорогим)
