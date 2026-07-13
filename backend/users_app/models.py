@@ -54,6 +54,7 @@ class PricingPlan(models.Model):
     price = models.DecimalField(max_digits=20,decimal_places=2,verbose_name="price")
     max_projects = models.IntegerField(default=5,verbose_name="maximum_links")
     is_active = models.BooleanField(default=True,verbose_name="status")
+    is_featured = models.BooleanField(default=False, verbose_name="Highlight plan (Popular)")
 
     # Мультиязычные названия
     name_uk = models.CharField(max_length=100, default='', verbose_name="Plan's name (UK)")

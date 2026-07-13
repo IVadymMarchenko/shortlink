@@ -85,10 +85,10 @@ class PricingPlanSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PricingPlan
-        fields = ['id', 'slug', 'price', 'max_projects', 'name', 'description', 'features', 'features_disabled']
+        fields = ['id', 'slug', 'price', 'max_projects', 'name', 'description', 'features', 'features_disabled','is_featured']
 
-    # Внутренний хелпер для определения языка из заголовков запроса
-    def get_lang(self):
+    # ИСПРАВЛЕНО: Переименовали метод во внутренний хелпер, чтобы DRF не путал его с логикой полей
+    def _get_current_lang(self):
         request = self.context.get('request')
         if request:
             # Читаем стандартный заголовок Accept-Language
@@ -97,13 +97,13 @@ class PricingPlanSerializer(serializers.ModelSerializer):
         return 'uk'
 
     def get_name(self, obj):
-        return obj.name_en if self.get_lang() == 'en' else obj.name_uk
+        return obj.name_en if self._get_current_lang() == 'en' else obj.name_uk
 
     def get_description(self, obj):
-        return obj.description_en if self.get_lang() == 'en' else obj.description_uk
+        return obj.description_en if self._get_current_lang() == 'en' else obj.description_uk
 
     def get_features(self, obj):
-        return obj.features_en if self.get_lang() == 'en' else obj.features_uk
+        return obj.features_en if self._get_current_lang() == 'en' else obj.features_uk
 
     def get_features_disabled(self, obj):
-        return obj.features_disabled_en if self.get_lang() == 'en' else obj.features_disabled_uk
+        return obj.features_disabled_en if self._get_current_lang() == 'en' else obj.features_disabled_uk

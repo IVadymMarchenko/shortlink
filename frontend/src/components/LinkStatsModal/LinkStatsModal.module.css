@@ -1,3 +1,23 @@
+/* ==========================================================================
+   ЦВЕТОВЫЕ ПЕРЕМЕННЫЕ ДЛЯ ГРАФИКОВ И ТЕМАТИЗАЦИИ
+   ========================================================================== */
+:root {
+  --chart-primary: #6366f1;
+  --chart-mobile: #ec4899;
+  --chart-pc: #0ea5e9;
+  --chart-empty: #e2e8f0;
+}
+
+[data-theme="dark"] {
+  --chart-primary: #818cf8;
+  --chart-mobile: #f472b6;
+  --chart-pc: #38bdf8;
+  --chart-empty: #334155;
+}
+
+/* ==========================================================================
+   ОСНОВНЫЕ СТИЛИ МОДАЛКИ
+   ========================================================================== */
 .overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -31,7 +51,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.8rem; /* Уменьшили с 1.5rem, чтобы поджать шапку */
+  margin-bottom: 0.8rem;
 }
 
 .titleGroup {
@@ -46,12 +66,9 @@
   font-weight: 700;
 }
 
+/* Избавились от хардкода цвета иконки */
 .analyticsIcon {
-  color: #6366f1;
-}
-
-[data-theme="dark"] .analyticsIcon {
-  color: #a78bfa;
+  color: var(--chart-primary);
 }
 
 .linkName {
@@ -76,12 +93,14 @@
   background: var(--btn-hover-bg);
 }
 
-/* Виджеты */
+/* ==========================================================================
+   ВИДЖЕТЫ И СЕТКИ
+   ========================================================================== */
 .widgetsGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
-  margin-bottom: 1rem; /* Уменьшили с 1.5rem, карточка с графиком прижмется ближе */
+  margin-bottom: 1rem;
 }
 
 .widgetCard {
@@ -110,13 +129,15 @@
   font-weight: 700;
 }
 
-/* Разделы графиков */
+/* ==========================================================================
+   РАЗДЕЛЫ ГРАФИКОВ
+   ========================================================================== */
 .chartSection, .pieCard {
   background: rgba(255, 255, 255, 0.2);
   border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 1.2rem;
-  margin-bottom: 1rem; /* Уменьшили нижний отступ, чтобы подтянуть и круговые графики */
+  margin-bottom: 1rem;
 }
 
 [data-theme="dark"] .chartSection, 
@@ -138,7 +159,9 @@
   margin-top: 0.5rem;
 }
 
-/* Круговые графики */
+/* ==========================================================================
+   КРУГОВЫЕ ГРАФИКИ И ТУЛТИП Recharts
+   ========================================================================== */
 .bottomChartsGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -179,7 +202,43 @@
   display: inline-block;
 }
 
-/* Анимации */
+/* Чистые стили для всплывающих подсказок в Recharts */
+.customTooltip {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  color: var(--text-main) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 8px 12px;
+}
+
+/* ==========================================================================
+   ВСПОМОГАТЕЛЬНЫЕ КЛАССЫ И АНИМАЦИИ
+   ========================================================================== */
+.loadingContainer {
+  padding: 3rem 0;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.noDataContainer {
+  padding: 2rem;
+  text-align: center;
+  opacity: 0.7;
+}
+
+
+/* Экспортируем CSS-переменные в JS-код */
+:export {
+  chartPrimary: var(--chart-primary);
+  chartColor2: #3b82f6;
+  chartColor3: #a855f7;
+  chartColor4: #64748b;
+  chartMobile: var(--chart-mobile);
+  chartPc: var(--chart-pc);
+  chartEmpty: var(--chart-empty);
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -190,6 +249,7 @@
   to { transform: scale(1); opacity: 1; }
 }
 
+/* Адаптивность */
 @media (max-width: 600px) {
   .widgetsGrid, .bottomChartsGrid {
     grid-template-columns: 1fr;

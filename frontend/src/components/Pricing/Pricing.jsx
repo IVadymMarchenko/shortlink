@@ -1,32 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import styles from './Pricing.module.css';
 import { useLang } from '../../context/LanguageContext';
-import api from '../../api'; // Твой Axios-клиент
+import api from '../../api';
 
 export default function Pricing({ onPurchase, currentPlanSlug }) {
-  
   const { t, lang, currentLang } = useLang(); 
-  const [plans, setPlans] = useState([]); // Сюда грузим тарифы из Django
+  const [plans, setPlans] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false); 
 
-  // Приводим текущий план юзера к нижнему регистру
   const userPlanSlug = currentPlanSlug ? currentPlanSlug.toLowerCase() : 'free';
   const activeLang = lang || currentLang || localStorage.getItem('cleanlink_lang') || 'en';
 
-  const getActiveBtnText = () => {
-    const translated = t('pricing.active');
-    if (translated && translated !== 'pricing.active') return translated;
-    if (activeLang === 'uk') return 'Поточний план';
-    return 'Current Plan';
-  };
+  /* ВСЕ ТЕКСТЫ ОБЪЯВЛЕНЫ В ОДНОМ МЕСТЕ */
+  const activeText = t('pricing.active', activeLang === 'uk' ? 'Поточний план' : 'Current Plan');
+  const purchaseText = t('pricing.purchaseBtn', activeLang === 'uk' ? 'Обрати тариф' : 'Select Plan');
+  const includedText = t('pricing.included', activeLang === 'uk' ? 'Включено' : 'Included');
 
-  const activeText = getActiveBtnText();
-
-  // Загружаем данные из API Django
   useEffect(() => {
     const fetchPlans = async () => {
       try {
@@ -47,16 +40,15 @@ export default function Pricing({ onPurchase, currentPlanSlug }) {
   }, [activeLang]);
 
   const handleSelectPlan = (plan) => {
-    const dSlug = plan.slug.toLowerCase();
-    // Если это бесплатный план или текущий план пользователя — модалку не открываем
-    if (dSlug === 'free' || dSlug === userPlanSlug) return;
+    const planPrice = parseFloat(plan.price);
+    if (planPrice === 0 || plan.slug.toLowerCase() === userPlanSlug) return;
     setSelectedPlan(plan);
   };
 
   const handleExecutePayment = async () => {
     if (!selectedPlan || !onPurchase) return;
     setIsSubmitting(true);
-    await onPurchase(selectedPlan.slug); // Отправляем чистый слаг из базы (free/popular/business)
+    await onPurchase(selectedPlan.slug); 
     setIsSubmitting(false);
     setSelectedPlan(null);
   };
@@ -70,41 +62,30 @@ export default function Pricing({ onPurchase, currentPlanSlug }) {
       
       <div className={styles.pricingGrid}>
         {plans.map((plan) => {
-          const dSlug = plan.slug.toLowerCase(); // 'free', 'popular', 'business'
+          const dSlug = plan.slug.toLowerCase(); 
           const isCurrent = userPlanSlug === dSlug;
-          
-          // Логика блокировки кнопок:
-          // План free ЗАБЛОКИРОВАН ВСЕГДА. План popular или business заблокирован, только если он текущий.
-          const isDisabled = dSlug === 'free' || isCurrent;
 
-          // Динамический текст кнопки: если текущий тариф — пишем "Поточний план", иначе берём из i18n
-         // Динамический текст кнопки
-          let btnText = '';
-          if (isCurrent) {
-            btnText = activeText; // Поточний план
-          } else if (dSlug === 'free') {
-            // Если тариф бесплатный, но юзер уже перешел на платный — убираем с кнопки фразу "Поточний план"
-            btnText = activeLang === 'uk' ? 'Включено' : activeLang === 'ru' ? 'Включено' : 'Included';
-          } else {
-            // Для всех остальных планов берем стандартный текст кнопки из локализации
-            btnText = t(`pricing.plans.${dSlug === 'business' ? 'business' : dSlug === 'popular' ? 'pro' : 'base'}.btn`);
-          }
-          // Собираем фичи из базы
+          const planPrice = parseFloat(plan.price);
+          const isFreePlan = planPrice === 0;
+          const isDisabled = isFreePlan || isCurrent;
+
+          const btnText = isCurrent ? activeText : (isFreePlan ? includedText : purchaseText);
+
           const features = [
-            ...plan.features.map(text => ({ text, isAvailable: true })),
+            ...(plan.features || []).map(text => ({ text, isAvailable: true })),
             ...(plan.features_disabled || []).map(text => ({ text, isAvailable: false }))
           ];
 
           return (
             <div 
-              key={plan.id} 
-              className={`${styles.pricingCard} ${dSlug === 'popular' ? styles.pricingCardFeatured : ''} ${isDisabled ? styles.cardDisabled : ''}`}
+              key={plan.id}
+              className={`${styles.pricingCard} ${plan.is_featured ? styles.pricingCardFeatured : ''} ${isDisabled ? styles.cardDisabled : ''}`}
             >
-              {dSlug === 'popular' && <div className={styles.badgePopular}>{t('pricing.popularBadge')}</div>}
+              {plan.is_featured && <div className={styles.badgePopular}>{t('pricing.popularBadge')}</div>}
               
               <div className={styles.pricingHeader}>
                 <h4>{plan.name}</h4>
-                <div className={styles.price}>${parseFloat(plan.price).toFixed(0)}<span>{t('pricing.perMonth')}</span></div>
+                <div className={styles.price}>${planPrice.toFixed(0)}<span>{t('pricing.perMonth')}</span></div>
                 <p>{plan.description}</p>
               </div>
 
@@ -118,7 +99,7 @@ export default function Pricing({ onPurchase, currentPlanSlug }) {
 
               <button 
                 type="button" 
-                className={dSlug === 'popular' ? styles.btnPlanFeatured : styles.btnPlan}
+                className={plan.is_featured ? styles.btnPlanFeatured : styles.btnPlan}
                 disabled={isDisabled}
                 onClick={() => handleSelectPlan(plan)}
               >

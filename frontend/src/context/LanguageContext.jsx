@@ -52,6 +52,19 @@ const translations = {
       shortPassword: "Пароль має бути не меншим за 6 символів"
     },
     dashboard: {
+      statsTitle: "Статистика посилання",
+      totalClicks: "Всього переходів",
+      uniqueClicks: "Унікальні кліки",
+      topLocation: "Топ локація",
+      weeklyDynamics: "Динаміка кліків за тиждень",
+      topCountries: "Топ країн",
+      devices: "Пристрої",
+      loadingAnalytics: "Завантаження аналітики...",
+      noData: "Немає даних",
+      clicks: "Кліки",
+      pc: "ПК / Ноутбуки",
+      mobile: "Смартфони",
+      local: "Локальні / Невідомо",
       planPro: "👑 PRO",
       planFree: "⚡ FREE",
       createdLabel: "Створено",
@@ -78,6 +91,9 @@ const translations = {
 
     // ДОБАВИЛИ ТАРИФЫ
     pricing: {
+      active: "Поточний план",
+      purchaseBtn: "Обрати тариф",
+      included: "Включено",
       mainTitle: "Тарифні плани",
       popularBadge: "Популярний",
       perMonth: "/міс",
@@ -106,23 +122,6 @@ const translations = {
           btn: "Купити Бізнес"
         }
       },
-      features: {
-        f1: "До 50 коротких посилань на місяць",
-        f2: "Базова статистика (тільки кліки)",
-        f3: "Стандартний домен cleanlink.com",
-        f4: "Кастомні домени",
-        f5: "Детальна аналітика по країнах",
-        f6: "Безлімітне створення посилань",
-        f7: "Детальна статистика та графіки",
-        f8: "1 кастомний домен",
-        f9: "API інтеграція (Django)",
-        f10: "Підтримка 24/7",
-        f11: "Усе з тарифу Про",
-        f12: "Безлімітні кастомні домени",
-        f13: "Повний експорт даних (CSV/JSON)",
-        f14: "Командний доступ (до 5 слотів)",
-        f15: "SLA та пріоритетна підтримка"
-      }
     }
   },
   en: {
@@ -174,6 +173,19 @@ const translations = {
       shortPassword: "Password must be at least 6 characters"
     },
     dashboard: {
+      statsTitle: "Link Statistics",
+      totalClicks: "Total Clicks",
+      uniqueClicks: "Unique Clicks",
+      topLocation: "Top Location",
+      weeklyDynamics: "Click Dynamics for the Week",
+      topCountries: "Top Countries",
+      devices: "Devices",
+      loadingAnalytics: "Loading analytics...",
+      noData: "No data",
+      clicks: "Clicks",
+      pc: "PC / Laptops",
+      mobile: "Smartphones",
+      local: "Local / Unknown",
       planPro: "👑 PRO",
       planFree: "⚡ FREE",
       createdLabel: "Created",
@@ -199,6 +211,9 @@ const translations = {
     },
     // ТАРИФЫ НА АНГЛИЙСКОМ
     pricing: {
+      active: "Current Plan",
+      purchaseBtn: "Select Plan",
+      included: "Included",
       mainTitle: "Pricing Plans",
       popularBadge: "Popular",
       perMonth: "/mo",
@@ -227,23 +242,6 @@ const translations = {
           btn: "Buy Business"
         }
       },
-      features: {
-        f1: "Up to 50 short links per month",
-        f2: "Basic statistics (clicks only)",
-        f3: "Standard domain cleanlink.com",
-        f4: "Custom domains",
-        f5: "Detailed analytics by country",
-        f6: "Unlimited link creation",
-        f7: "Detailed statistics and charts",
-        f8: "1 custom domain",
-        f9: "API integration (Django)",
-        f10: "24/7 Support",
-        f11: "Everything from Pro plan",
-        f12: "Unlimited custom domains",
-        f13: "Full data export (CSV/JSON)",
-        f14: "Team access (漏 up to 5 slots)",
-        f15: "SLA and priority support"
-      }
     }
   }
 };
@@ -260,12 +258,12 @@ export function LanguageProvider({ children }) {
   const t = (path) => {
     const keys = path.split('.');
     let result = translations[lang];
-    
+
     for (const key of keys) {
       if (result && result[key] !== undefined) {
         result = result[key];
       } else {
-        return path; 
+        return path;
       }
     }
     return result;
