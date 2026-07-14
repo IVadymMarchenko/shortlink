@@ -8,8 +8,18 @@ import { downloadQRCode } from '../downloadQr';
 import { useLang } from '../../../context/LanguageContext';
 
 export default function CreateLinkForm({ 
-  handleSubmit, longUrl, setLongUrl, errors, setErrors, customSlug, handleSlugChange, 
-  userPlan, generatedLink, isCopied, handleCopyGenerated, styles 
+  handleSubmit, 
+  longUrl, 
+  setLongUrl, 
+  errors, 
+  setErrors, 
+  customSlug, 
+  handleSlugChange, 
+  isCustomSlugAllowed,
+  generatedLink, 
+  isCopied, 
+  handleCopyGenerated, 
+  styles 
 }) {
   const { t } = useLang();
   const qrRef = useRef(null);
@@ -43,19 +53,20 @@ export default function CreateLinkForm({
           label={
             <div className={styles.labelWrapper}>
               <span>{t('dashboard.customSlugLabel')}</span>
-              {userPlan === 'free' && (
+              {/* Показываем кнопку PRO, только если кастомный слаг НЕ разрешен */}
+              {!isCustomSlugAllowed && (
                 <Link to="/billing" className={styles.proBadgeBtn}>
                   <Crown size={12} fill="currentColor" /> {t('dashboard.proBadge')}
                 </Link>
               )}
             </div>
           }
-          placeholder={userPlan === 'free' ? t('dashboard.placeholderSlugFree') : t('dashboard.placeholderSlugPro')}
+          placeholder={!isCustomSlugAllowed ? t('dashboard.placeholderSlugFree') : t('dashboard.placeholderSlugPro')}
           value={customSlug}
           onChange={(e) => handleSlugChange(e.target.value)}
-          disabled={userPlan === 'free'}
+          disabled={!isCustomSlugAllowed} 
           error={formatError(errors.customSlug)}
-          className={`${styles.formInputSpacingLast} ${userPlan === 'free' ? styles.inputDisabled : ''}`}
+          className={`${styles.formInputSpacingLast} ${!isCustomSlugAllowed ? styles.inputDisabled : ''}`}
         />
         
         <button type="submit" className={styles.btnPrimary}>
@@ -72,11 +83,12 @@ export default function CreateLinkForm({
               <div className={styles.resultBox}>
                 <span className={styles.resultText}>{generatedLink}</span>
                 <button 
-                  className={`${styles.btnIcon} ${isCopied ? styles.copied : ''}`} 
+                  // Используем твой стильный класс успешного копирования из CSS модуля
+                  className={`${styles.btnIcon} ${isCopied ? styles.btnIconSuccess : ''}`} 
                   onClick={handleCopyGenerated} 
                   type="button"
                 >
-                  {isCopied ? <Check size={18} color="#10b981" /> : <Copy size={18} />}
+                  {isCopied ? <Check size={18} /> : <Copy size={18} />}
                 </button>
               </div>
             </div>

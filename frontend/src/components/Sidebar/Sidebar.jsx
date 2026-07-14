@@ -5,29 +5,18 @@ import { Link2, CreditCard, LogOut } from 'lucide-react';
 import styles from "./Sidebar.module.css"; 
 import { useLang } from '../../context/LanguageContext'; 
 
-const MENU_TRANSLATIONS = {
-  uk: {
-    links: 'Мої посилання',
-    billing: 'Тарифи',
-    logout: 'Вийти'
-  },
-  en: {
-    links: 'My Links',
-    billing: 'Pricing',
-    logout: 'Log Out'
-  }
-};
-
 export default function Sidebar({ onLogout }) { 
-  const { lang } = useLang(); 
-  const tMenu = MENU_TRANSLATIONS[lang] || MENU_TRANSLATIONS.en;
+  const { t } = useLang(); // Твой глобальный переводчик
+
+  // Динамически получаем локализованные строки из твоего контекста с резервным текстом
+  const linksLabel = t('dashboard.myLinks') !== 'dashboard.myLinks' ? t('dashboard.myLinks') : 'My Links';
+  const billingLabel = t('pricing.mainTitle') !== 'pricing.mainTitle' ? t('pricing.mainTitle') : 'Pricing';
+  const logoutLabel = t('auth.logout') !== 'auth.logout' ? t('auth.logout') : (t('pricing.plans') ? 'Вийти' : 'Log Out');
 
   const menuItems = [
-    { path: '/dashboard', label: tMenu.links, icon: <Link2 size={20} /> },
-    { path: '/billing', label: tMenu.billing, icon: <CreditCard size={20} /> },
+    { path: '/dashboard', label: linksLabel, icon: <Link2 size={20} /> },
+    { path: '/billing', label: billingLabel, icon: <CreditCard size={20} /> },
   ];
-
-  console.log("LOAD SIDEBAR");
 
   return (
     <aside className={styles.sidebar}>
@@ -53,7 +42,7 @@ export default function Sidebar({ onLogout }) {
           onClick={onLogout}
         >
           <LogOut size={20} />
-          <span className={styles.itemLabel}>{tMenu.logout}</span>
+          <span className={styles.itemLabel}>{logoutLabel}</span>
         </button>
       </div>
     </aside>

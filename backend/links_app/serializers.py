@@ -18,10 +18,8 @@ class ShortLinkCreateSerializer(serializers.ModelSerializer):
         return f"/{obj.short_code}/"
 
     def validate_short_code(self, value):
-        # Если поле пустое (пробелы или пустая строка), возвращаем None, чтобы не ломать if в модели
         if not value or value.strip() == "":
             return None
-            
         value = value.strip().lower()
         
         # Проверяем уникальность кастомного слага
@@ -32,19 +30,17 @@ class ShortLinkCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = self.context['request'].user
-        
-        # Проверяем подписку
-        try:
-            plan_name = user.subscription.plan.name.lower()
-        except AttributeError:
-            plan_name = 'free'
 
-        is_pro = 'pro' in plan_name or 'popular' in plan_name
+        try:
+            plan_slug = user.subscription.plan.slug.lower()
+        except AttributeError:
+            plan_slug = 'free'
+
+        is_pro = plan_slug != 'free'
         short_code = validated_data.get('short_code')
 
-        # Защита: если юзер FREE, принудительно стираем то, что он прислал в обход фронтенда
-        if not is_pro or short_code is None:
-            validated_data.pop('short_code', None) # Удаляем полностью, чтобы включился метод save() модели
+        if not is_pro or not short_code:
+            validated_data.pop('short_code', None)
 
         return ShortLink.objects.create(user=user, **validated_data)
     

@@ -52,6 +52,9 @@ const translations = {
       shortPassword: "Пароль має бути не меншим за 6 символів"
     },
     dashboard: {
+      "graphsLockedTitle": "Детальна аналітика заблокована",
+      "graphsLockedDesc": "Перейдіть на PRO тариф, щоб бачити графіки, географію кліків та пристрої вашої аудиторії.",
+      "btnUpgrade": "Оновити тариф 🚀",
       statsTitle: "Статистика посилання",
       totalClicks: "Всього переходів",
       uniqueClicks: "Унікальні кліки",
@@ -173,6 +176,9 @@ const translations = {
       shortPassword: "Password must be at least 6 characters"
     },
     dashboard: {
+      "graphsLockedTitle": "Detailed Analytics Locked",
+      "graphsLockedDesc": "Upgrade to PRO to view charts, click geography, and audience devices.",
+      "btnUpgrade": "Upgrade Plan 🚀",
       statsTitle: "Link Statistics",
       totalClicks: "Total Clicks",
       uniqueClicks: "Unique Clicks",

@@ -1,5 +1,6 @@
 // src/pages/Dashboard/Dashboard.jsx
 import React from 'react';
+import { useNavigate } from 'react-router-dom'; // <--- Импортируем хук роутера
 import styles from './Dashboard.module.css';
 import Sidebar from '../../components/Sidebar/Sidebar';
 import Pricing from '../../components/Pricing/Pricing';
@@ -12,6 +13,13 @@ import LinksFilterControls from './components/LinksFilterControls';
 import LinksList from './components/LinksList';
 
 export default function Dashboard({ onLogout, user }) {
+  
+  const userPlanPrice = user && user.plan ? parseFloat(user.plan.price) : 0;
+  const isCustomSlugAllowed = user && user.plan_slug && user.plan_slug.toLowerCase() !== 'free';
+  console.log("ДАННЫЕ ПОЛЬЗОВАТЕЛЯ:", user);
+  console.log("РАЗРЕШЕН ЛИ СЛАГ:", user && user.plan ? parseFloat(user.plan.price) > 0 : false);
+  const navigate = useNavigate();
+
   const {
     activeTab,
     userPlan,
@@ -65,6 +73,7 @@ export default function Dashboard({ onLogout, user }) {
               isCopied={isCopied}
               handleCopyGenerated={handleCopyGenerated}
               styles={styles}
+              isCustomSlugAllowed={isCustomSlugAllowed}
             />
 
             <LinksFilterControls
@@ -99,8 +108,17 @@ export default function Dashboard({ onLogout, user }) {
           <Pricing onPurchase={handlePlanPurchase} currentPlanSlug={userPlan} />
         )}
 
+        {/* ПЕРЕДАЕМ ЧИСТУЮ НАВИГАЦИЮ В МОДАЛКУ */}
         {activeStatsLink && (
-          <LinkStatsModal link={activeStatsLink} onClose={() => setActiveStatsLink(null)} />
+          <LinkStatsModal 
+            link={activeStatsLink} 
+            onClose={() => setActiveStatsLink(null)} 
+            userPlan={userPlan} 
+            onNavigateToBilling={() => {
+              setActiveStatsLink(null); 
+              navigate('/billing');     
+            }}
+          />
         )}
       </main>
     </div>

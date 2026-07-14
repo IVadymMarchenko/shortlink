@@ -77,7 +77,6 @@ class LoginSerializer(serializers.Serializer):
 
 
 class PricingPlanSerializer(serializers.ModelSerializer):
-    # Объявляем динамические поля, которые будут отдавать перевод
     name = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
     features = serializers.SerializerMethodField()
@@ -87,7 +86,7 @@ class PricingPlanSerializer(serializers.ModelSerializer):
         model = PricingPlan
         fields = ['id', 'slug', 'price', 'max_projects', 'name', 'description', 'features', 'features_disabled','is_featured']
 
-    # ИСПРАВЛЕНО: Переименовали метод во внутренний хелпер, чтобы DRF не путал его с логикой полей
+
     def _get_current_lang(self):
         request = self.context.get('request')
         if request:
@@ -95,6 +94,7 @@ class PricingPlanSerializer(serializers.ModelSerializer):
             lang = request.META.get('HTTP_ACCEPT_LANGUAGE', 'uk')
             return 'en' if 'en' in lang else 'uk'
         return 'uk'
+
 
     def get_name(self, obj):
         return obj.name_en if self._get_current_lang() == 'en' else obj.name_uk
