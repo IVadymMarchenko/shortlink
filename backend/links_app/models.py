@@ -11,6 +11,8 @@ class ShortLink(models.Model):
     short_code = models.CharField(max_length=10, unique=True, blank=True,db_index=True) 
     created_at = models.DateTimeField(auto_now_add=True)
     clicks_count = models.PositiveIntegerField(default=0)
+   
+    is_custom = models.BooleanField(default=False, verbose_name="Is custom slug")
 
 
     def increment_clicks(self): 

@@ -64,7 +64,7 @@ class PricingPlanAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Основные настройки', {
-            'fields': ('slug', 'price', 'max_projects', 'is_active','is_featured')
+            'fields': ('slug', 'price', 'max_projects', 'is_active','is_featured','is_custom_slug_allowed','max_custom_slug_allowed')
         }),
         ('Локализация имени и описания', {
             'fields': ('name_uk', 'name_en', 'description_uk', 'description_en')

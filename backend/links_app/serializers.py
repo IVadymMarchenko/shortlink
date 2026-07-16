@@ -2,9 +2,11 @@
 from rest_framework import serializers
 from .models import ShortLink,LinkAnalytics
 
+from rest_framework import serializers
+from .models import ShortLink
+
 class ShortLinkCreateSerializer(serializers.ModelSerializer):
     short_url = serializers.SerializerMethodField()
-    # allow_blank=True разрешает фронтенду слать пустую строку
     short_code = serializers.CharField(required=False, allow_blank=True, max_length=50)
 
     class Meta:
@@ -18,31 +20,43 @@ class ShortLinkCreateSerializer(serializers.ModelSerializer):
         return f"/{obj.short_code}/"
 
     def validate_short_code(self, value):
+        """
+        Чистим и валидируем конкретное поле short_code.
+        """
         if not value or value.strip() == "":
             return None
+            
         value = value.strip().lower()
         
-        # Проверяем уникальность кастомного слага
+        # Проверяем уникальность
         if ShortLink.objects.filter(short_code=value).exists():
             raise serializers.ValidationError("slug_already_taken")
             
         return value
 
-    def create(self, validated_data):
+    def validate(self, attrs):
+        """
+        Финальная перекрёстная проверка лимитов и прав.
+        """
         user = self.context['request'].user
+        short_code = attrs.get('short_code')
 
-        try:
-            plan_slug = user.subscription.plan.slug.lower()
-        except AttributeError:
-            plan_slug = 'free'
+        # Если пользователь пытается создать кастомный слаг
+        if short_code:
+            # Безопасно получаем тарифный план пользователя
+            try:
+                plan = user.subscription.plan
+                # Просто берем значение флага из БД!
+                is_allowed = plan.is_custom_slug_allowed
+            except AttributeError:
+                is_allowed = False
 
-        is_pro = plan_slug != 'free'
-        short_code = validated_data.get('short_code')
+            if not is_allowed:
+                raise serializers.ValidationError({
+                    "short_code": "custom_slug_not_allowed_for_current_plan"
+                })
 
-        if not is_pro or not short_code:
-            validated_data.pop('short_code', None)
-
-        return ShortLink.objects.create(user=user, **validated_data)
+        return attrs
     
 
 

@@ -10,58 +10,45 @@ from django.shortcuts import get_object_or_404, redirect
 from django.views import View
 from django.db.models import F
 from .models import ShortLink, LinkAnalytics
-from .services import AnalyticsLinkService
+from .services import AnalyticsLinkService,LinkCreationService
 from datetime import timedelta
 from rest_framework.generics import ListAPIView
+from datetime import timedelta
+from django.utils import timezone
+from rest_framework.exceptions import PermissionDenied, ValidationError
+
 
 
 User = get_user_model()
+
 
 class ShortLinkCreateView(APIView):
     permission_classes = [IsAuthenticated]
     
     def post(self, request):
+        # 1. Проверяем базовый формат присланных данных (структуру JSON)
+        serializer = ShortLinkCreateSerializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True) # Сама вызовет ValidationError 400, если данные кривые
+        
         try:
-            subscription = request.user.subscription
-            #Сначала актуализируем тариф (сбрасываем на Free или обновляем месяц)
-            subscription.check_and_update_status()
-            #Вместо is_valid() просто смотрим на флаг активности (на случай бана админом)
-            if not subscription.is_active:
-                return Response(
-                    {"detail": "Your subscription is suspended. Contact support."}, 
-                    status=status.HTTP_403_FORBIDDEN
-                )  
-            max_limit = subscription.plan.max_projects 
-        except AttributeError:
-            return Response(
-                {"detail": "You do not have an active subscription."}, 
-                status=status.HTTP_403_FORBIDDEN
-            )
-        # 3. Считаем ссылки
-        user_with_stats = (User.objects
-                           .annotate(current_links_count=Count(
-                               'links', 
-                               filter=Q(links__created_at__gte=subscription.start_date)
-                           ))
-                           .get(id=request.user.id))
-        # 4. Проверяем лимиты
-        if user_with_stats.current_links_count >= max_limit:
-            next_update = subscription.start_date + timedelta(days=30)
-            return Response(
-                {
-                    "detail": f"You have reached the limit of your plan ({max_limit} links). "
-                              f"Limits will reset on: {next_update.strftime('%d.%m.%Y')}."
-                }, 
-                status=status.HTTP_403_FORBIDDEN
+            # 2. Вызываем сервис для выполнения бизнес-логики и записи в БД
+            new_link = LinkCreationService.create_short_link(
+                user=request.user,
+                original_url=serializer.validated_data['original_url'],
+                short_code=serializer.validated_data.get('short_code') # Здесь безопасно будет None или очищенный слаг
             )
             
-        # 5. Создание
-        serializer = ShortLinkCreateSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            # 3. Возвращаем созданный объект обратно на фронтенд
+            response_serializer = ShortLinkCreateSerializer(new_link, context={'request': request})
+            return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+            
+        except (PermissionDenied, ValidationError) as e:
+            # Ловим бизнес-исключения из сервиса и отдаем их с правильными HTTP-статусами
+            # e.detail автоматически возвращает словарь ошибок для валидации или строку
+            return Response(
+                e.detail if hasattr(e, 'detail') else {"detail": str(e)}, 
+                status=e.status_code
+            )
     
 
 

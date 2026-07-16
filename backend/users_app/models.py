@@ -55,6 +55,9 @@ class PricingPlan(models.Model):
     max_projects = models.IntegerField(default=5,verbose_name="maximum_links")
     is_active = models.BooleanField(default=True,verbose_name="status")
     is_featured = models.BooleanField(default=False, verbose_name="Highlight plan (Popular)")
+    is_custom_slug_allowed = models.BooleanField(default=False, verbose_name="Allow custom slug (short code)")
+    max_custom_slug_allowed = models.IntegerField(default=0,verbose_name="max_custom_slug_allowed")
+    
 
     # Мультиязычные названия
     name_uk = models.CharField(max_length=100, default='', verbose_name="Plan's name (UK)")
@@ -84,35 +87,47 @@ class UserSubscriptions(models.Model):
     start_date = models.DateTimeField(auto_now_add=True)
     end_date = models.DateTimeField(null=True, blank=True, verbose_name="End date")
     is_active = models.BooleanField(default=True)
+
+    current_links_count = models.IntegerField(default=0, verbose_name="Current links count")
+    current_custom_slugs_count = models.IntegerField(default=0, verbose_name="Current custom slugs count")
+    
+    last_reset_date = models.DateTimeField(default=timezone.now)
     
 
     def check_and_update_status(self):
         now = timezone.now()
-        current_slug = self.plan.slug.lower()
-        # 1. ЕСЛИ ТАРИФ НЕ БЕСПЛАТНЫЙ: проверяем, не истек ли срок действия
-        if current_slug != 'free':
-            if self.end_date and now > self.end_date:
-                try:
-                    # Берем строго тот бесплатный тариф, который ты настроил в админке
-                    free_plan = PricingPlan.objects.get(slug='free')
-                    # Откатываем юзера на бесплатный тариф
-                    self.plan = free_plan
-                    self.end_date = None      
-                    self.start_date = now  
-                    self.is_active = True
-                    self.save()
-                    logger.info(f"Subscription expired for user {self.user.email}. Downgraded to free plan.")
-                    return
-                except PricingPlan.DoesNotExist:
-                    logger.critical("CRITICAL: 'free' pricing plan is missing in the database! Cannot downgrade user.")
-                    # Здесь можно либо оставить старый тариф, либо бросить ошибку, но главное — залогировать
-            
-        # 2. ЕСЛИ ТАРИФ БЕСПЛАТНЫЙ: проверяем, прошло ли 30 дней для обновления лимитов
-        elif current_slug == 'free':
-            if now >= self.start_date + timedelta(days=30):
-                self.start_date = now
+        
+        # 1. ПРОВЕРКА ИСТЕЧЕНИЯ ПЛАТНОГО ТАРИФА
+        # Вместо хардкода строки 'free' проверяем, задана ли дата окончания (у бесплатных тарифов её обычно нет)
+        if self.end_date and now > self.end_date:
+            try:
+                # Ищем бесплатный тариф (например, с ценой 0.00 или флагом, но раз у тебя 'free' в слаге, берем его)
+                free_plan = PricingPlan.objects.get(slug='free')
+                
+                # Откатываем юзера на бесплатный тариф и ОБНУЛЯЕМ счетчики!
+                self.plan = free_plan
+                self.end_date = None      
+                self.start_date = now  
+                self.is_active = True
+                self.current_links_count = 0
+                self.current_custom_slugs_count = 0
                 self.save()
-                logger.info(f"Monthly limits reset for free user {self.user.email}.")
+                
+                logger.info(f"Subscription expired for user {self.user.email}. Downgraded to free plan. Limits reset.")
+                return
+            except PricingPlan.DoesNotExist:
+                logger.critical("CRITICAL: 'free' pricing plan is missing in the database! Cannot downgrade user.")
+        
+        # 2. ЕЖЕМЕСЯЧНЫЙ СБРОС ЛИМИТОВ (для всех тарифов: и бесплатных, и активных платных)
+        # Каждые 30 дней с даты старта текущего периода мы сбрасываем счетчики в 0
+        if now >= self.start_date + timedelta(days=30):
+            self.start_date = now  # Сдвигаем расчетный период на следующий месяц
+            self.current_links_count = 0
+            self.current_custom_slugs_count = 0
+            self.save()
+            logger.info(f"Monthly limits reset for user {self.user.email}. Counters cleared.")
+
+
     
     def __str__(self):
         return f"{self.user.name or self.user.email} - {self.plan.name_uk or self.plan.slug}"
