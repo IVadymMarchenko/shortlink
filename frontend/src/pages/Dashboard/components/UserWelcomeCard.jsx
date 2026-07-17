@@ -2,15 +2,18 @@
 import React from 'react';
 import { useLang } from '../../../context/LanguageContext';
 
-export default function UserWelcomeCard({ user, userPlan, styles }) {
-  const { t } = useLang();
+export default function UserWelcomeCard({ user, styles }) {
+  
+  const { t, lang } = useLang(); 
   
   if (!user) return null;
 
-  const isPro = userPlan === 'pro' || userPlan === 'popular';
+  const isPremiumUser = user.is_default_free === false;
+
+  
+  const currentPlanName = lang === 'en' ? user.plan_name_en : user.plan_name_uk;
 
   return (
-    /* Скомбинировали базовый класс .card и наш новый .welcomeCard */
     <div className={`${styles.card} ${styles.welcomeCard}`}>
       <div>
         <h2 className={styles.welcomeTitle}>
@@ -21,9 +24,9 @@ export default function UserWelcomeCard({ user, userPlan, styles }) {
         </p>
       </div>
       
-      {/* Динамически добавляем класс золотого градиента, если юзер — PRO */}
-      <div className={`${styles.planBadge} ${isPro ? styles.planBadgePro : ''}`}>
-        {isPro ? t('dashboard.planPro') : t('dashboard.planFree')}
+      {/* Выводим строго данные из базы данных на нужном языке */}
+      <div className={`${styles.planBadge} ${isPremiumUser ? styles.planBadgePro : ''}`}>
+        {currentPlanName || t('dashboard.planFree')}
       </div>
     </div>
   );

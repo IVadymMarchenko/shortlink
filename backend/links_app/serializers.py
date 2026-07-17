@@ -2,8 +2,6 @@
 from rest_framework import serializers
 from .models import ShortLink,LinkAnalytics
 
-from rest_framework import serializers
-from .models import ShortLink
 
 class ShortLinkCreateSerializer(serializers.ModelSerializer):
     short_url = serializers.SerializerMethodField()

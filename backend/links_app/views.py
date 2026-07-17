@@ -9,7 +9,7 @@ from .serializers import ShortLinkCreateSerializer,LinkSummaryAnalyticsSerialize
 from django.shortcuts import get_object_or_404, redirect
 from django.views import View
 from django.db.models import F
-from .models import ShortLink, LinkAnalytics
+from .models import ShortLink
 from .services import AnalyticsLinkService,LinkCreationService
 from datetime import timedelta
 from rest_framework.generics import ListAPIView
@@ -29,7 +29,6 @@ class ShortLinkCreateView(APIView):
         # 1. Проверяем базовый формат присланных данных (структуру JSON)
         serializer = ShortLinkCreateSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True) # Сама вызовет ValidationError 400, если данные кривые
-        
         try:
             # 2. Вызываем сервис для выполнения бизнес-логики и записи в БД
             new_link = LinkCreationService.create_short_link(
@@ -57,7 +56,7 @@ class LinkRedirectView(View):
     def get(self, request, short_code):
         link = get_object_or_404(ShortLink, short_code=short_code)
         AnalyticsLinkService.track_link(request, link)
-        
+
         return redirect(link.original_url)
     
 

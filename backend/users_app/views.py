@@ -103,9 +103,8 @@ class PricingPlanListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        # Берем только активные тарифы и сортируем их по цене (от дешевых к дорогим)
+
         plans = PricingPlan.objects.filter(is_active=True).order_by('price')
-        
         # Передаем request в context, чтобы сериализатор смог прочитать заголовок языка!
         serializer = PricingPlanSerializer(plans, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)

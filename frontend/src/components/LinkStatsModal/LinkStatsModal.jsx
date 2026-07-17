@@ -8,13 +8,16 @@ import { useLang } from '../../context/LanguageContext';
 
 const DOMAIN = import.meta.env.VITE_API_DOMAIN || window.location.host;
 
-export default function LinkStatsModal({ link, onClose, userPlan, onNavigateToBilling }) {
+// ИСПРАВЛЕНО: Вместо ненадежного userPlan теперь принимаем четкий флаг isDefaultFree
+export default function LinkStatsModal({ link, onClose, isDefaultFree, onNavigateToBilling }) {
     const { t, lang, currentLang } = useLang(); 
     const [analyticsData, setAnalyticsData] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const activeLang = lang || currentLang || localStorage.getItem('cleanlink_lang') || 'uk';
-    const isFreePlan = userPlan === 'free';
+    
+    // ИСПРАВЛЕНО: Логика подписки теперь полностью изолирована от строк и переводов
+    const isLocked = isDefaultFree; 
 
     useEffect(() => {
         if (!link?.id) return;
@@ -81,12 +84,13 @@ export default function LinkStatsModal({ link, onClose, userPlan, onNavigateToBi
         return {
             totalClicks: analyticsData.clicks_count || total,
             uniqueClicks: analyticsData.unique_clicks_count || 0,
-            topLocation: isFreePlan ? 'PRO 🚀' : (countryData[0] ? `${countryData[0].name} (${countryData[0].value}%)` : txtNoData),
+            // ИСПРАВЛЕНО: Заменили проверку на флаг блокировки
+            topLocation: isLocked ? 'PRO 🚀' : (countryData[0] ? `${countryData[0].name} (${countryData[0].value}%)` : txtNoData),
             dailyData,
             countryData: countryData.length > 0 ? countryData : [{ name: txtNoData, value: 100, color: styles.chartEmpty }],
             deviceData
         };
-    }, [analyticsData, activeLang, t, isFreePlan]);
+    }, [analyticsData, activeLang, t, isLocked]);
 
     if (!link) return null;
 
@@ -122,14 +126,16 @@ export default function LinkStatsModal({ link, onClose, userPlan, onNavigateToBi
                             </div>
                             <div className={styles.widgetCard}>
                                 <span className={styles.widgetLabel}>{t('dashboard.topLocation')}</span>
-                                <span className={`${styles.widgetValue} ${isFreePlan ? styles.lockedText : ''}`}>
+                                {/* ИСПРАВЛЕНО: Стили применяются по флагу isLocked */}
+                                <span className={`${styles.widgetValue} ${isLocked ? styles.lockedText : ''}`}>
                                     {stats.topLocation}
                                 </span>
                             </div>
                         </div>
 
-                        <div className={isFreePlan ? styles.blurContainer : ''}>
-                            {isFreePlan && (
+                        {/* ИСПРАВЛЕНО: Скрытие контента завязано на isLocked */}
+                        <div className={isLocked ? styles.blurContainer : ''}>
+                            {isLocked && (
                                 <div className={styles.paywallOverlay}>
                                     <div className={styles.paywallCard}>
                                         <Lock size={32} className={styles.lockIcon} />
@@ -247,9 +253,7 @@ export default function LinkStatsModal({ link, onClose, userPlan, onNavigateToBi
     );
 }
 
-// ==========================================
-// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-// ==========================================
+// Вспомогательные функции остаются без изменений ниже...
 function collectRawData(clicks, { txtLocal, txtPc, txtMobile, dateFormatter }) {
     const countriesMap = {};
     const devicesMap = { [txtPc]: 0, [txtMobile]: 0 };

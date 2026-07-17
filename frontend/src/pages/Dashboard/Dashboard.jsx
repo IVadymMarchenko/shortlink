@@ -1,6 +1,6 @@
 // src/pages/Dashboard/Dashboard.jsx
 import React from 'react';
-import { useNavigate } from 'react-router-dom'; // <--- Импортируем хук роутера
+import { useNavigate } from 'react-router-dom';
 import styles from './Dashboard.module.css';
 import Sidebar from '../../components/Sidebar/Sidebar';
 import Pricing from '../../components/Pricing/Pricing';
@@ -13,12 +13,14 @@ import LinksFilterControls from './components/LinksFilterControls';
 import LinksList from './components/LinksList';
 
 export default function Dashboard({ onLogout, user }) {
-  
-  const userPlanPrice = user && user.plan ? parseFloat(user.plan.price) : 0;
-  const isCustomSlugAllowed = user && user.plan_slug && user.plan_slug.toLowerCase() !== 'free';
-  console.log("ДАННЫЕ ПОЛЬЗОВАТЕЛЯ:", user);
-  console.log("РАЗРЕШЕН ЛИ СЛАГ:", user && user.plan ? parseFloat(user.plan.price) > 0 : false);
   const navigate = useNavigate();
+
+  // НОВАЯ ЛОГИКА: Фронтенд теперь вообще ничего не знает про названия тарифов.
+  // Мы просто берем готовый флаг из нашего нового сериализатора.
+  const isCustomSlugAllowed = user?.is_custom_slug_allowed ?? false;
+
+  console.log("ДАННЫЕ ПОЛЬЗОВАТЕЛЯ:", user);
+  console.log("РАЗРЕШЕН ЛИ КАСТОМНЫЙ СЛАГ:", isCustomSlugAllowed);
 
   const {
     activeTab,
@@ -73,7 +75,7 @@ export default function Dashboard({ onLogout, user }) {
               isCopied={isCopied}
               handleCopyGenerated={handleCopyGenerated}
               styles={styles}
-              isCustomSlugAllowed={isCustomSlugAllowed}
+              isCustomSlugAllowed={isCustomSlugAllowed} // Передаем красивый булев флаг
             />
 
             <LinksFilterControls
@@ -109,13 +111,18 @@ export default function Dashboard({ onLogout, user }) {
         )}
 
         {/* ПЕРЕДАЕМ ЧИСТУЮ НАВИГАЦИЮ В МОДАЛКУ */}
+        {/* ПЕРЕДАЕМ БЕЗОПАСНЫЙ ФЛАГ В МОДАЛКУ */}
         {activeStatsLink && (
           <LinkStatsModal 
             link={activeStatsLink} 
             onClose={() => setActiveStatsLink(null)} 
-            userPlan={userPlan} 
+            // ИСПРАВЛЕНО: передаем флаг бесплатного тарифа вместо строки userPlan
+            isDefaultFree={user?.is_default_free ?? true} 
             onNavigateToBilling={() => {
               setActiveStatsLink(null); 
+              // Если у тебя вкладка биллинга находится прямо внутри Дашборда (судя по коду activeTab === 'billing'),
+              // то navigate('/billing') может увести на пустую страницу, если роутер настроен иначе.
+              // Но если это отдельный роут — оставляем navigate.
               navigate('/billing');     
             }}
           />

@@ -58,13 +58,13 @@ class UserAdmin(BaseUserAdmin):
 # Вместо этого настраиваем удобное отображение полей тарифа в админке.
 @admin.register(PricingPlan)
 class PricingPlanAdmin(admin.ModelAdmin):
-    list_display = ('slug', 'name_uk', 'name_en', 'price', 'max_projects', 'is_active','is_featured')
+    list_display = ('slug', 'name_uk', 'name_en', 'price', 'max_projects', 'is_default_free', 'is_active','is_featured')
     list_editable = ('is_active',)
     search_fields = ('slug', 'name_uk', 'name_en')
     
     fieldsets = (
         ('Основные настройки', {
-            'fields': ('slug', 'price', 'max_projects', 'is_active','is_featured','is_custom_slug_allowed','max_custom_slug_allowed')
+            'fields': ('slug', 'price', 'max_projects', 'is_active','is_featured','is_default_free','is_custom_slug_allowed','max_custom_slug_allowed')
         }),
         ('Локализация имени и описания', {
             'fields': ('name_uk', 'name_en', 'description_uk', 'description_en')

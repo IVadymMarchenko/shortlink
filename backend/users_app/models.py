@@ -8,7 +8,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-
 class UserManager(BaseUserManager):
 
     def create_user(self, email, password=None, **extra_fields):
@@ -57,6 +56,8 @@ class PricingPlan(models.Model):
     is_featured = models.BooleanField(default=False, verbose_name="Highlight plan (Popular)")
     is_custom_slug_allowed = models.BooleanField(default=False, verbose_name="Allow custom slug (short code)")
     max_custom_slug_allowed = models.IntegerField(default=0,verbose_name="max_custom_slug_allowed")
+   
+    is_default_free = models.BooleanField(default=False, verbose_name="Is default free plan")
     
 
     # Мультиязычные названия
@@ -102,7 +103,7 @@ class UserSubscriptions(models.Model):
         if self.end_date and now > self.end_date:
             try:
                 # Ищем бесплатный тариф (например, с ценой 0.00 или флагом, но раз у тебя 'free' в слаге, берем его)
-                free_plan = PricingPlan.objects.get(slug='free')
+                free_plan = PricingPlan.objects.get(is_default_free=True)
                 
                 # Откатываем юзера на бесплатный тариф и ОБНУЛЯЕМ счетчики!
                 self.plan = free_plan

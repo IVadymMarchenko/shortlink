@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 User = get_user_model()
 
 class DashboardInfoView(APIView):
-    # Явно указываем Джанго использовать твой JWT из кук, минуя стандартную CSRF-защиту сессий
+   
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 

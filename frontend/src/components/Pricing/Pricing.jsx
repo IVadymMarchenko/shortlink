@@ -15,7 +15,7 @@ export default function Pricing({ onPurchase, currentPlanSlug }) {
   const userPlanSlug = currentPlanSlug ? currentPlanSlug.toLowerCase() : 'free';
   const activeLang = lang || currentLang || localStorage.getItem('cleanlink_lang') || 'en';
 
-  /* ВСЕ ТЕКСТЫ ОБЪЯВЛЕНЫ В ОДНОМ МЕСТЕ */
+  
   const activeText = t('pricing.active', activeLang === 'uk' ? 'Поточний план' : 'Current Plan');
   const purchaseText = t('pricing.purchaseBtn', activeLang === 'uk' ? 'Обрати тариф' : 'Select Plan');
   const includedText = t('pricing.included', activeLang === 'uk' ? 'Включено' : 'Included');
