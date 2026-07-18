@@ -65,7 +65,7 @@ class LinkCreationService:
         if not subscription.is_active:
             raise PermissionDenied("Your subscription is suspended. Contact support.")
 
-        # 2. Мгновенная проверка лимита ссылок (БЕЗ ТЯЖЕЛОГО COUNT)
+        # 2. Мгновенная проверка лимита ссылок
         if subscription.current_links_count >= subscription.plan.max_projects:
             raise PermissionDenied(
                 f"You have reached the limit of your plan ({subscription.plan.max_projects} links)."
@@ -81,9 +81,7 @@ class LinkCreationService:
 
             # Не превышен ли количественный лимит за период?
             if subscription.current_custom_slugs_count >= subscription.plan.max_custom_slug_allowed:
-                raise ValidationError({
-                    "short_code": f"You have reached the limit of custom slugs ({subscription.plan.max_custom_slug_allowed}) for this period."
-                })
+                raise ValidationError({"short_code": "custom_slug_limit_exceeded"})
 
         # 4. Создаем саму ссылку в базе данных
         link = ShortLink.objects.create(

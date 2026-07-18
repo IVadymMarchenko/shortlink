@@ -24,9 +24,10 @@ export default function CreateLinkForm({
   const { t } = useLang();
   const qrRef = useRef(null);
 
-  const formatError = (errorKey) => {
+const formatError = (errorKey) => {
     if (!errorKey) return '';
-    return errorKey.includes(' ') ? errorKey : t(errorKey);
+    if (errorKey.includes(' ')) return errorKey;
+    return t(`errors.${errorKey}`);
   };
 
   return (

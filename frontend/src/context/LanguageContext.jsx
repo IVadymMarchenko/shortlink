@@ -5,6 +5,8 @@ const LanguageContext = createContext();
 const translations = {
   uk: {
     errors: {
+      custom_slug_not_allowed_for_current_plan: "Власне закінчення недоступне на вашому тарифі",
+      custom_slug_limit_exceeded: "Ви вичерпали ліміт кастомних закінчень для цього періоду.",
       requiredField: "Це поле є обов'язковим.",
       invalidEmail: "Введіть коректну адресу електронної пошти.",
       passwordTooShort: "Пароль занадто короткий.",
@@ -28,6 +30,7 @@ const translations = {
       limitReached: "Перевищено ліміт посилань вашого тарифу"
     },
     auth: {
+      logout: "Вийти",
       tabLogin: "Вхід",
       loadingText: "Завантаження...",
       tabRegister: "Реєстрація",
@@ -102,6 +105,9 @@ const translations = {
       perMonth: "/міс",
       alertSuccess: "Успішний перехід на тариф",
       alertCharged: "Списано",
+      featureLinks: "До {{count}} коротких посилань на місяць",
+      featureCustomSlugs: "До {{count}} кастомних закінчень на місяць",
+      featureNoCustomSlugs: "Кастомні закінчення посилань",
       modal: {
         title: "Підключення тарифу",
         redirectText: "Ви переходите на тариф",
@@ -129,6 +135,8 @@ const translations = {
   },
   en: {
     errors: {
+      custom_slug_not_allowed_for_current_plan: "Custom slug is not allowed for your current plan",
+      custom_slug_limit_exceeded: "You have reached the limit of custom slugs for this period.",
       requiredField: "This field is required.",
       invalidEmail: "Enter a valid email address.",
       passwordTooShort: "Password is too short.",
@@ -152,6 +160,7 @@ const translations = {
       limitReached: "Plan link limit reached"
     },
     auth: {
+      logout: "Log Out",
       tabLogin: "Sign In",
       loadingText: "Loading...",
       tabRegister: "Sign Up",
@@ -225,6 +234,9 @@ const translations = {
       perMonth: "/mo",
       alertSuccess: "Successfully upgraded to",
       alertCharged: "Charged",
+      featureLinks: "Up to {{count}} short links per month",
+      featureCustomSlugs: "Up to {{count}} custom slugs per month",
+      featureNoCustomSlugs: "Custom slugs (short codes)",
       modal: {
         title: "Plan Activation",
         redirectText: "You are switching to",

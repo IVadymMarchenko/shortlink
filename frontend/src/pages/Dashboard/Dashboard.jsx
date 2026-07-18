@@ -57,7 +57,6 @@ export default function Dashboard({ onLogout, user }) {
       <Sidebar onLogout={onLogout} />
 
       <main className={styles.mainContent}>
-        {/* ВКЛАДКА ССЫЛОК */}
         {activeTab === 'links' && (
           <>
             <UserWelcomeCard user={user} userPlan={userPlan} styles={styles} />
@@ -111,18 +110,13 @@ export default function Dashboard({ onLogout, user }) {
         )}
 
         {/* ПЕРЕДАЕМ ЧИСТУЮ НАВИГАЦИЮ В МОДАЛКУ */}
-        {/* ПЕРЕДАЕМ БЕЗОПАСНЫЙ ФЛАГ В МОДАЛКУ */}
         {activeStatsLink && (
           <LinkStatsModal 
             link={activeStatsLink} 
             onClose={() => setActiveStatsLink(null)} 
-            // ИСПРАВЛЕНО: передаем флаг бесплатного тарифа вместо строки userPlan
             isDefaultFree={user?.is_default_free ?? true} 
             onNavigateToBilling={() => {
               setActiveStatsLink(null); 
-              // Если у тебя вкладка биллинга находится прямо внутри Дашборда (судя по коду activeTab === 'billing'),
-              // то navigate('/billing') может увести на пустую страницу, если роутер настроен иначе.
-              // Но если это отдельный роут — оставляем navigate.
               navigate('/billing');     
             }}
           />

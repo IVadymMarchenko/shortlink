@@ -1,3 +1,4 @@
+// src/components/Pricing/Pricing.jsx
 import React, { useState, useEffect } from 'react';
 import styles from './Pricing.module.css';
 import { useLang } from '../../context/LanguageContext';
@@ -15,7 +16,6 @@ export default function Pricing({ onPurchase, currentPlanSlug }) {
   const userPlanSlug = currentPlanSlug ? currentPlanSlug.toLowerCase() : 'free';
   const activeLang = lang || currentLang || localStorage.getItem('cleanlink_lang') || 'en';
 
-  
   const activeText = t('pricing.active', activeLang === 'uk' ? 'Поточний план' : 'Current Plan');
   const purchaseText = t('pricing.purchaseBtn', activeLang === 'uk' ? 'Обрати тариф' : 'Select Plan');
   const includedText = t('pricing.included', activeLang === 'uk' ? 'Включено' : 'Included');
@@ -71,10 +71,63 @@ export default function Pricing({ onPurchase, currentPlanSlug }) {
 
           const btnText = isCurrent ? activeText : (isFreePlan ? includedText : purchaseText);
 
-          const features = [
-            ...(plan.features || []).map(text => ({ text, isAvailable: true })),
-            ...(plan.features_disabled || []).map(text => ({ text, isAvailable: false }))
+          // --- ДИНАМИЧЕСКИЕ ФИЧИ (ССЫЛКИ И ОКОНЧАНИЯ) ---
+          const dynamicFeatures = [];
+
+          // 1. Лимит коротких ссылок (max_projects)
+          const rawLinksTpl = t('pricing.featureLinks') === 'pricing.featureLinks'
+            ? (activeLang === 'uk' ? 'До {{count}} коротких посилань на місяць' : 'Up to {{count}} short links per month')
+            : t('pricing.featureLinks');
+          dynamicFeatures.push({
+            text: rawLinksTpl.replace('{{count}}', plan.max_projects),
+            isAvailable: true
+          });
+
+          // 2. Лимит кастомных окончаний (max_custom_slug_allowed)
+          if (plan.is_custom_slug_allowed) {
+            const rawSlugsTpl = t('pricing.featureCustomSlugs') === 'pricing.featureCustomSlugs'
+              ? (activeLang === 'uk' ? 'До {{count}} кастомних закінчень на місяць' : 'Up to {{count}} custom slugs per month')
+              : t('pricing.featureCustomSlugs');
+            dynamicFeatures.push({
+              text: rawSlugsTpl.replace('{{count}}', plan.max_custom_slug_allowed),
+              isAvailable: true
+            });
+          } else {
+            const rawNoSlugsText = t('pricing.featureNoCustomSlugs') === 'pricing.featureNoCustomSlugs'
+              ? (activeLang === 'uk' ? 'Кастомні закінчення посилань' : 'Custom slugs (short codes)')
+              : t('pricing.featureNoCustomSlugs');
+            dynamicFeatures.push({
+              text: rawNoSlugsText,
+              isAvailable: false
+            });
+          }
+
+          // УБИРАЕМ ДУБЛИ: Из баз данных убираем строки, перекрываемые динамическими лимитами
+          const cleanBfFeatures = (plan.features || []).filter(text => {
+            const lower = text.toLowerCase();
+            return !lower.includes('посилань') && !lower.includes('links') &&
+                   !lower.includes('закінчень') && !lower.includes('slug');
+          });
+
+          const cleanBfFeaturesDisabled = (plan.features_disabled || []).filter(text => {
+            const lower = text.toLowerCase();
+            return !lower.includes('посилань') && !lower.includes('links') &&
+                   !lower.includes('закінчень') && !lower.includes('slug');
+          });
+
+          // СОРТИРОВКА И ГРУППИРОВКА: Отделяем доступные от недоступных, чтобы избежать перемешивания
+          const allEnabled = [
+            ...dynamicFeatures.filter(f => f.isAvailable),
+            ...cleanBfFeatures.map(text => ({ text, isAvailable: true }))
           ];
+
+          const allDisabled = [
+            ...dynamicFeatures.filter(f => !f.isAvailable),
+            ...cleanBfFeaturesDisabled.map(text => ({ text, isAvailable: false }))
+          ];
+
+          // Склеиваем финальный массив: сначала идут все галочки, затем все крестики
+          const features = [...allEnabled, ...allDisabled];
 
           return (
             <div 

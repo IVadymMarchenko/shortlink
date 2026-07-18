@@ -84,17 +84,19 @@ class PricingPlanSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PricingPlan
-        fields = ['id', 'slug', 'price', 'max_projects', 'name', 'description', 'features', 'features_disabled','is_featured']
-
+        # ИСПРАВЛЕНО: Добавили поля лимитов кастомных слагов в выдачу API
+        fields = [
+            'id', 'slug', 'price', 'max_projects', 
+            'is_custom_slug_allowed', 'max_custom_slug_allowed', 
+            'name', 'description', 'features', 'features_disabled', 'is_featured'
+        ]
 
     def _get_current_lang(self):
         request = self.context.get('request')
         if request:
-            # Читаем стандартный заголовок Accept-Language
             lang = request.META.get('HTTP_ACCEPT_LANGUAGE', 'uk')
             return 'en' if 'en' in lang else 'uk'
         return 'uk'
-
 
     def get_name(self, obj):
         return obj.name_en if self._get_current_lang() == 'en' else obj.name_uk

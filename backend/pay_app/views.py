@@ -33,6 +33,8 @@ class FakePaymentView(APIView):
         subscription.start_date = timezone.now()
         subscription.end_date = timezone.now() + timedelta(days=30)
         subscription.is_active = True
+        subscription.current_links_count = 0
+        subscription.current_custom_slugs_count = 0
         subscription.save()
 
         # ОПРЕДЕЛЯЕМ ЯЗЫК: достаем язык из заголовков запроса для красивого ответа

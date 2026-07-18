@@ -67,11 +67,13 @@ export function useDashboard(user) {
   const handleSlugChange = (val) => {
     setCustomSlug(val);
     if (/[^a-zA-Z0-9-_]/.test(val)) {
-      setErrors(prev => ({ ...prev, customSlug: 'errors.slugInvalidChars' }));
+      // ИСПРАВЛЕНО: Сохраняем только чистый код ошибки
+      setErrors(prev => ({ ...prev, customSlug: 'slugInvalidChars' }));
     } else {
       setErrors(prev => ({ ...prev, customSlug: '' }));
     }
   };
+  
 
   const handleCopyGenerated = () => {
     navigator.clipboard.writeText(generatedLink);

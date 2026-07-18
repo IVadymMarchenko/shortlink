@@ -8,10 +8,10 @@ import { useLang } from '../../context/LanguageContext';
 export default function Sidebar({ onLogout }) { 
   const { t } = useLang(); // Твой глобальный переводчик
 
-  // Динамически получаем локализованные строки из твоего контекста с резервным текстом
-  const linksLabel = t('dashboard.myLinks') !== 'dashboard.myLinks' ? t('dashboard.myLinks') : 'My Links';
-  const billingLabel = t('pricing.mainTitle') !== 'pricing.mainTitle' ? t('pricing.mainTitle') : 'Pricing';
-  const logoutLabel = t('auth.logout') !== 'auth.logout' ? t('auth.logout') : (t('pricing.plans') ? 'Вийти' : 'Log Out');
+  // Убираем костыли: теперь t() чисто берет данные из словаря
+  const linksLabel = t('dashboard.myLinks');
+  const billingLabel = t('pricing.mainTitle');
+  const logoutLabel = t('auth.logout');
 
   const menuItems = [
     { path: '/dashboard', label: linksLabel, icon: <Link2 size={20} /> },
