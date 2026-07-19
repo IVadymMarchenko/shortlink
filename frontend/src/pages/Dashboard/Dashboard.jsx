@@ -19,8 +19,6 @@ export default function Dashboard({ onLogout, user }) {
   // Мы просто берем готовый флаг из нашего нового сериализатора.
   const isCustomSlugAllowed = user?.is_custom_slug_allowed ?? false;
 
-  console.log("ДАННЫЕ ПОЛЬЗОВАТЕЛЯ:", user);
-  console.log("РАЗРЕШЕН ЛИ КАСТОМНЫЙ СЛАГ:", isCustomSlugAllowed);
 
   const {
     activeTab,

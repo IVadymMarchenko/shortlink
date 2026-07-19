@@ -31,10 +31,9 @@ export function useDashboard(user) {
     return 'links';
   }, [location.pathname]);
 
-  // Архитектурно чистое получение плана из профиля пользователя без гадания по строкам
   const userPlan = useMemo(() => {
     return user?.plan_slug ? user.plan_slug.toLowerCase() : 'free';
-  }, [user]);
+  }, [user?.plan_slug]);
 
   const filteredAndSortedLinks = useMemo(() => {
     const lowerSearch = searchQuery.toLowerCase();
@@ -51,12 +50,27 @@ export function useDashboard(user) {
       });
   }, [links, searchQuery, sortBy]);
 
-  // --- ЭФФЕКТЫ ---
+  // --- ЭФФЕКТЫ (ПОЛЛИНГ ВМЕСТО SSE) ---
+
+  // 1. Первичная загрузка при входе на страницу
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
       fetchUserLinks();
     }
-  }, [user]);
+  }, [user?.id]);
+
+  // 2. Фоновое обновление кликов каждые 7 секунд (без вызова лоадера)
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const interval = setInterval(() => {
+      linksService.getAllLinks()
+        .then(data => setLinks(data))
+        .catch(err => console.error("Ошибка фонового обновления кликов:", err));
+    }, 7000); 
+
+    return () => clearInterval(interval);
+  }, [user?.id]);
 
   // --- МЕТОДЫ УПРАВЛЕНИЯ И ВАЛИДАЦИИ ---
   const handleSearchChange = (e) => {
@@ -67,13 +81,11 @@ export function useDashboard(user) {
   const handleSlugChange = (val) => {
     setCustomSlug(val);
     if (/[^a-zA-Z0-9-_]/.test(val)) {
-      // ИСПРАВЛЕНО: Сохраняем только чистый код ошибки
       setErrors(prev => ({ ...prev, customSlug: 'slugInvalidChars' }));
     } else {
       setErrors(prev => ({ ...prev, customSlug: '' }));
     }
   };
-  
 
   const handleCopyGenerated = () => {
     navigator.clipboard.writeText(generatedLink);
@@ -106,7 +118,7 @@ export function useDashboard(user) {
       const data = await linksService.purchasePlan(planSlug);
       if (data.status === 'success') {
         alert(t('errors.paymentSuccess'));
-        window.location.reload(); // Перезагружаем страницу, бэкенд отдаст новый профиль со свежим plan_slug
+        window.location.reload(); 
       }
     } catch (err) {
       console.error("Ошибка при оплате:", err);

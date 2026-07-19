@@ -71,7 +71,7 @@ export default function Pricing({ onPurchase, currentPlanSlug }) {
 
           const btnText = isCurrent ? activeText : (isFreePlan ? includedText : purchaseText);
 
-          // --- ДИНАМИЧЕСКИЕ ФИЧИ (ССЫЛКИ И ОКОНЧАНИЯ) ---
+          // --- ДИНАМИЧЕСКИЕ ЧИСЛОВЫЕ ЛИМИТЫ ---
           const dynamicFeatures = [];
 
           // 1. Лимит коротких ссылок (max_projects)
@@ -83,7 +83,7 @@ export default function Pricing({ onPurchase, currentPlanSlug }) {
             isAvailable: true
           });
 
-          // 2. Лимит кастомных окончаний (max_custom_slug_allowed)
+          // 2. Лимит кастомных окончаний (max_custom_slug_allowed) — только если они разрешены в тарифе
           if (plan.is_custom_slug_allowed) {
             const rawSlugsTpl = t('pricing.featureCustomSlugs') === 'pricing.featureCustomSlugs'
               ? (activeLang === 'uk' ? 'До {{count}} кастомних закінчень на місяць' : 'Up to {{count}} custom slugs per month')
@@ -92,41 +92,19 @@ export default function Pricing({ onPurchase, currentPlanSlug }) {
               text: rawSlugsTpl.replace('{{count}}', plan.max_custom_slug_allowed),
               isAvailable: true
             });
-          } else {
-            const rawNoSlugsText = t('pricing.featureNoCustomSlugs') === 'pricing.featureNoCustomSlugs'
-              ? (activeLang === 'uk' ? 'Кастомні закінчення посилань' : 'Custom slugs (short codes)')
-              : t('pricing.featureNoCustomSlugs');
-            dynamicFeatures.push({
-              text: rawNoSlugsText,
-              isAvailable: false
-            });
           }
 
-          // УБИРАЕМ ДУБЛИ: Из баз данных убираем строки, перекрываемые динамическими лимитами
-          const cleanBfFeatures = (plan.features || []).filter(text => {
-            const lower = text.toLowerCase();
-            return !lower.includes('посилань') && !lower.includes('links') &&
-                   !lower.includes('закінчень') && !lower.includes('slug');
-          });
-
-          const cleanBfFeaturesDisabled = (plan.features_disabled || []).filter(text => {
-            const lower = text.toLowerCase();
-            return !lower.includes('посилань') && !lower.includes('links') &&
-                   !lower.includes('закінчень') && !lower.includes('slug');
-          });
-
-          // СОРТИРОВКА И ГРУППИРОВКА: Отделяем доступные от недоступных, чтобы избежать перемешивания
+          // ГРУППИРОВКА И СОРТИРОВКА: Всё строго из базы + динамические лимиты сверху
           const allEnabled = [
-            ...dynamicFeatures.filter(f => f.isAvailable),
-            ...cleanBfFeatures.map(text => ({ text, isAvailable: true }))
+            ...dynamicFeatures, // Числовые лимиты всегда активны (в начале списка)
+            ...(plan.features || []).map(text => ({ text, isAvailable: true }))
           ];
 
           const allDisabled = [
-            ...dynamicFeatures.filter(f => !f.isAvailable),
-            ...cleanBfFeaturesDisabled.map(text => ({ text, isAvailable: false }))
+            ...(plan.features_disabled || []).map(text => ({ text, isAvailable: false }))
           ];
 
-          // Склеиваем финальный массив: сначала идут все галочки, затем все крестики
+          // Соединяем: сначала идут ВСЕ галочки (включая лимиты), потом ВСЕ крестики из админки Django
           const features = [...allEnabled, ...allDisabled];
 
           return (
