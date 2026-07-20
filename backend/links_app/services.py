@@ -3,6 +3,7 @@ from .models import LinkAnalytics, ShortLink
 from django.db import transaction
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from users_app.models import UserSubscriptions
+from .tasks import track_link_analytics_task  
 
 # links_app/services.py
 class AnalyticsLinkService:
@@ -29,16 +30,18 @@ class AnalyticsLinkService:
         else:
             device = "Bot/Unknown"
 
-        # Сохраняем аналитику вместе с IP
-        LinkAnalytics.objects.create(
-            link=link,
-            ip_address=ip,
-            country=country_name,
-            device_type=device,
-            os=os_name
-        )
+        # Упаковываем данные для передачи в Celery (простые типы данных)
+        analytics_data = {
+            "ip_address": ip,
+            "country": country_name,
+            "device_type": device,
+            "os": os_name
+        }
 
-        link.increment_clicks()
+        # Вызываем задачу асинхронно.
+        # Если на бесплатном хостинге включим CELERY_TASK_ALWAYS_EAGER,
+        # этот метод выполнится синхронно без Redis!
+        track_link_analytics_task.delay(link.id, analytics_data)
 
 
 

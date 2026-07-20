@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # 1. База данных PostgreSQL
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=analytics_db
+      - POSTGRES_USER=postgres_user
+      - POSTGRES_PASSWORD=secure_dev_pass
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres_user -d analytics_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. Брокер сообщений Redis
+  redis:
+    image: redis:7.2-alpine
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # 3. Бэкенд (Django)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.backend
+    # Явно указываем Python искать бинарники в локальном пути пользователя контейнера
+    command: sh -c "export PATH=$PATH:/root/.local/bin && gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 4 --threads 2"
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - DATABASE_URL=postgres://postgres_user:secure_dev_pass@db:5432/analytics_db
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # 4. Воркер Celery
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.backend
+    # Аналогично прокидываем путь для воркера
+    command: sh -c "export PATH=$PATH:/root/.local/bin && python -m celery -A config worker --loglevel=info --concurrency=4 -E"
+    volumes:
+      - ./backend:/app
+    environment:
+      - DEBUG=0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - DATABASE_URL=postgres://postgres_user:secure_dev_pass@db:5432/analytics_db
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  # 5. Фронтенд (React + Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3000:80" # Твой фронтенд будет доступен на http://localhost:3000
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  redis_data:

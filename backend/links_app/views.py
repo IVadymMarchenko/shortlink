@@ -42,8 +42,6 @@ class ShortLinkCreateView(APIView):
             return Response(response_serializer.data, status=status.HTTP_201_CREATED)
             
         except (PermissionDenied, ValidationError) as e:
-            # Ловим бизнес-исключения из сервиса и отдаем их с правильными HTTP-статусами
-            # e.detail автоматически возвращает словарь ошибок для валидации или строку
             return Response(
                 e.detail if hasattr(e, 'detail') else {"detail": str(e)}, 
                 status=e.status_code
