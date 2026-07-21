@@ -27,7 +27,10 @@ export default function CreateLinkForm({
 const formatError = (errorKey) => {
     if (!errorKey) return '';
     if (errorKey.includes(' ')) return errorKey;
-    return t(`errors.${errorKey}`);
+    
+    // ИСПРАВЛЕНО: если бэкенд уже прислал "errors.что-то", используем как есть
+    const finalKey = errorKey.startsWith('errors.') ? errorKey : `errors.${errorKey}`;
+    return t(finalKey);
   };
 
   return (

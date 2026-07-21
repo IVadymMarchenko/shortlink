@@ -24,8 +24,8 @@ def create_jwt(user):
 
 
 
-
 class GoogleAuthService:
+
     GOOGLE_USERINFO_URL = 'https://www.googleapis.com/oauth2/v3/userinfo'
 
     @classmethod
@@ -48,6 +48,7 @@ class GoogleAuthService:
             raise AuthenticationFailed("Invalid or expired Google token.")
         return response.json()
 
+
     @classmethod
     def authenticate_or_create_user(cls, access_token: str) -> User:
         """Основной метод бизнес-логики: валидирует токен и возвращает юзера."""
@@ -58,24 +59,25 @@ class GoogleAuthService:
             raise AuthenticationFailed("Email verification failed: Google did not provide an email.")
 
         with transaction.atomic():
-            # Находим или создаем пользователя
+           # Знаходимо або створюємо користувача
             user, created = User.objects.get_or_create(
                 email=email,
                 defaults={'is_active': True}
             )
             
-            # Если пользователь зашел через Google впервые — привязываем ему тариф из админки
+            # Якщо користувач зайшов через Google вперше - прив'язуємо йому тариф з адмінки
             if created:
                 logger.info(f"Created new user via Google OAuth: {email}")
                 
-                try:
-                    # Берем готовый тариф 'free' из базы
-                    free_plan = PricingPlan.objects.get(slug='free')
-                except PricingPlan.DoesNotExist:
-                    logger.error("CRITICAL: Tried to register user via Google, but 'free' plan does not exist in DB.")
+                # Шукаємо активний дефолтний тариф. Якщо не знайде, поверне None
+                free_plan = PricingPlan.objects.filter(is_default_free=True, is_active=True).first()
+                
+                # Замінюємо try-except на звичайну перевірку на None
+                if not free_plan:
+                    logger.error("CRITICAL: Tried to register user via Google, but active default free plan does not exist in DB.")
                     raise AuthenticationFailed("Registration error: Default pricing plan is not configured. Please contact support.")
 
-                # Создаем подписку
+                # Створюємо передплату
                 UserSubscriptions.objects.create(
                     user=user,
                     plan=free_plan,
@@ -88,9 +90,6 @@ class GoogleAuthService:
 
 
 def set_auth_cookie(response, user):
-    """
-    Генерирует JWT-токен и устанавливает его в HttpOnly-куку для переданного ответа.
-    """
     token = create_jwt(user)
     
     response.set_cookie(
@@ -98,7 +97,7 @@ def set_auth_cookie(response, user):
         value=token,
         httponly=True,
         samesite='Lax',
-        secure=False,  # Перед деплоем поменяешь на True
-        max_age=60 * 600,  # 1 час
+        secure=False,  # Перед деплоем изменить на True
+        max_age=3600,  # 1 час (60 секунд * 60 минут) — строго под время жизни JWT
     )
     return token

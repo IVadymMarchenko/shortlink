@@ -41,20 +41,15 @@ class UserSerializer(serializers.ModelSerializer):
                 instance.set_password(password)
             instance.save()
 
-            # Ищем существующий тариф 'free' (в нижнем регистре, как на фронтенде)
-            try:
-                free_plan = PricingPlan.objects.get(slug='free')
-            except PricingPlan.DoesNotExist:
-                # Если в базе чисто, создаем его с правильными новыми полями
-                free_plan = PricingPlan.objects.create(
-                    slug='free',
-                    name_uk='Безкоштовний',
-                    name_en='Free',
-                    price=0.00,
-                    is_active=True
+            # Шукаємо дефолтний активний тариф прапором
+            free_plan = PricingPlan.objects.filter(is_default_free=True, is_active=True).first()
+            
+            if not free_plan:
+                raise serializers.ValidationError(
+                    {"detail": "Registration error: Default pricing plan is not configured."}
                 )
-
-            # Создаем подписку для нового пользователя
+            
+            # Створюємо передплату для нового користувача
             UserSubscriptions.objects.create(
                 user=instance,
                 plan=free_plan,
@@ -64,7 +59,7 @@ class UserSerializer(serializers.ModelSerializer):
     
 
 class LoginSerializer(serializers.Serializer):
-    # Для сериализаторов без Meta перехватчики пишутся прямо внутри поля:
+    # Для серіалізаторів без Meta перехоплювачі пишуться прямо всередині поля:
     email = serializers.EmailField(error_messages={
         'blank': 'errors.requiredField',
         'invalid': 'errors.invalidEmail'
@@ -84,7 +79,7 @@ class PricingPlanSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PricingPlan
-        # ИСПРАВЛЕНО: Добавили поля лимитов кастомных слагов в выдачу API
+        # Виправлено: Додали поля лімітів кастомних складів у видачу API
         fields = [
             'id', 'slug', 'price', 'max_projects', 
             'is_custom_slug_allowed', 'max_custom_slug_allowed', 

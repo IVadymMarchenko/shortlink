@@ -4,7 +4,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .models import User, PricingPlan, UserSubscriptions
 
 
-# 1. Стек-инлайн для подписки внутри карточки пользователя
+# 1. Стек-інлайн для підписки всередині картки користувача
 class UserSubscriptionInline(admin.StackedInline):
     model = UserSubscriptions
     can_delete = False
@@ -44,7 +44,7 @@ class UserAdmin(BaseUserAdmin):
 
     inlines = [UserSubscriptionInline]
 
-    # ИСПРАВЛЕНО: Теперь безопасно берём slug или name_uk вместо удаленного name
+    # беремо slug або name_uk замість віддаленого name
     def get_plan(self, obj):
         sub = getattr(obj, 'subscription', None)
         if sub and sub.plan:
@@ -54,8 +54,8 @@ class UserAdmin(BaseUserAdmin):
     get_plan.short_description = 'Текущий тариф'
 
 
-# ИСПРАВЛЕНО: Старая форма PricingPlanAdminForm удалена, так как поля 'name' больше нет.
-# Вместо этого настраиваем удобное отображение полей тарифа в админке.
+# Виправлено: Стара форма PricingPlanAdminForm видалена, тому що поля 'name' більше немає.
+# Натомість налаштовуємо зручне відображення полів тарифу в адмінці.
 @admin.register(PricingPlan)
 class PricingPlanAdmin(admin.ModelAdmin):
     list_display = ('slug', 'name_uk', 'name_en', 'price', 'max_projects', 'is_default_free', 'is_active','is_featured')
@@ -80,6 +80,6 @@ class PricingPlanAdmin(admin.ModelAdmin):
     )
 
 
-# Регистрация оставшихся моделей
+# Реєстрація моделей, що залишилися
 admin.site.register(User, UserAdmin)
 admin.site.register(UserSubscriptions)

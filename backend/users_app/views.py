@@ -9,22 +9,20 @@ from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated
 from .authentication import JWTAuthentication
 from rest_framework import status
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from .models import PricingPlan
 from .serializers import PricingPlanSerializer
-from .models import PricingPlan
-from .serializers import PricingPlanSerializer
+
+
 
 
 
 class RegistrView(APIView):
     
     def post(self,request):
+
         serializer = UserSerializer(data = request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-       
         response = Response(serializer.data)
         
         set_auth_cookie(response, user)
@@ -45,12 +43,9 @@ class LoginView(APIView):
         if user is None:
             raise AuthenticationFailed("errors.userNotFound")
             
-        response = Response()
-        token = set_auth_cookie(response, user)
-        
-        response.data = {
-            "jwt": token,
-        }
+        response = Response({"success": True, "detail": "Successfully logged in."}, status=status.HTTP_200_OK)
+        # Токен запишется в куку скрытно, фронт его не увидит в теле ответа
+        set_auth_cookie(response, user)
         
         return response
     
