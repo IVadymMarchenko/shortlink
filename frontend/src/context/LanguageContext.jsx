@@ -26,6 +26,7 @@ const translations = {
       serverError: "Помилка з'єднання з сервером",
       slugInvalidChars: "Дозволені лише латинські літери (A-Z), цифри, \"-\" та \"_\"",
       slugAlreadyTaken: "Ця назва вже зайнята",
+      slugReserved: "Ця назва зарезервована системою",
       invalidUrlFormat: "Некоректний формат URL",
       limitReached: "Перевищено ліміт посилань вашого тарифу"
     },
@@ -156,6 +157,7 @@ const translations = {
       serverError: "Server connection error",
       slugInvalidChars: "Only Latin letters (A-Z), numbers, \"-\" and \"_\" are allowed",
       slugAlreadyTaken: "This slug is already taken",
+      slugReserved: "This slug is reserved by the system",
       invalidUrlFormat: "Invalid URL format",
       limitReached: "Plan link limit reached"
     },

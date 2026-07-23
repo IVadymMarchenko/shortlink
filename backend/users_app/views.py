@@ -6,7 +6,7 @@ from .serializers import UserSerializer,LoginSerializer
 from django.conf import settings
 from .services import create_jwt,set_auth_cookie,GoogleAuthService
 from django.contrib.auth import authenticate
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .authentication import JWTAuthentication
 from rest_framework import status
 from .models import PricingPlan
@@ -17,6 +17,7 @@ from .serializers import PricingPlanSerializer
 
 
 class RegistrView(APIView):
+    permission_classes = [AllowAny]
     
     def post(self,request):
 
@@ -32,6 +33,8 @@ class RegistrView(APIView):
 
 
 class LoginView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -75,6 +78,8 @@ class LogOut(APIView):
 
 
 class GoogleLoginAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
         access_token = request.data.get('access_token')
         if not access_token:

@@ -10,11 +10,11 @@ class DashboardUserSerializer(serializers.ModelSerializer):
     is_custom_slug_allowed = serializers.SerializerMethodField()
     is_default_free = serializers.SerializerMethodField()
     
-    # Отдаем оба перевода названия напрямую из БД
+    # Віддаємо обидва переклади назви безпосередньо з БД
     plan_name_uk = serializers.SerializerMethodField()
     plan_name_en = serializers.SerializerMethodField()
     
-    # ИСПРАВЛЕНО: переводим max_projects на SerializerMethodField, чтобы избежать ошибки ImproperlyConfigured
+    #перекладаємо max_projects на SerializerMethodField, щоб уникнути помилки ImproperlyConfigured
     max_projects = serializers.SerializerMethodField()
    
     class Meta:
@@ -27,10 +27,10 @@ class DashboardUserSerializer(serializers.ModelSerializer):
         ]
 
     def get_max_projects(self, obj):
-        # Безопасно достаем лимит проектов из связанной модели тарифа
+        # Безпечно дістаємо ліміт проектів із пов'язаної моделі тарифу
         if hasattr(obj, 'subscription') and obj.subscription and obj.subscription.plan:
             return obj.subscription.plan.max_projects
-        return 5  # Дефолтное значение для бесплатного тарифа без подписки
+        return 5  # Дефолтне значення для безкоштовного тарифу без передплати
 
     def get_plan_slug(self, obj):
         if hasattr(obj, 'subscription') and obj.subscription and obj.subscription.plan:

@@ -3,6 +3,13 @@ from rest_framework import serializers
 from .models import ShortLink,LinkAnalytics
 
 
+RESERVED_SLUGS = {
+    'admin', 'api', 'login', 'dashboard', 'static', 'media', 
+    'favicon.ico', 'billing', 'settings', 'auth', 'register',
+    'pay', 'links', 'user', 'users', 'logout', 'terms', 'privacy'
+}
+
+
 class ShortLinkCreateSerializer(serializers.ModelSerializer):
     short_url = serializers.SerializerMethodField()
     short_code = serializers.CharField(required=False, allow_blank=True, max_length=50)
@@ -26,6 +33,8 @@ class ShortLinkCreateSerializer(serializers.ModelSerializer):
         if not value or value.strip() == "":
             return None
         value = value.strip().lower()
+        if value in RESERVED_SLUGS:
+            raise serializers.ValidationError("slug_reserved")
         # Перевіряємо унікальність
         if ShortLink.objects.filter(short_code=value).exists():
             raise serializers.ValidationError("slug_already_taken")

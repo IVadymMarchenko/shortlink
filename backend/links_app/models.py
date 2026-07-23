@@ -8,7 +8,7 @@ from django.conf import settings
 class ShortLink(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='links')
     original_url = models.URLField(max_length=500)
-    short_code = models.CharField(max_length=10, unique=True, blank=True,db_index=True) 
+    short_code = models.CharField(max_length=50, unique=True, blank=True,db_index=True) 
     created_at = models.DateTimeField(auto_now_add=True)
     clicks_count = models.PositiveIntegerField(default=0)
    
@@ -16,8 +16,8 @@ class ShortLink(models.Model):
 
 
     def increment_clicks(self): 
-        ShortLink.objects.filter(id = self.id).update(clicks_count=F('clicks_count') + 1)
-        self.clicks_count += 1
+        ShortLink.objects.filter(id=self.id).update(clicks_count=F('clicks_count') + 1)
+        self.refresh_from_db(fields=['clicks_count'])
 
 
     def save(self, *args, **kwargs):

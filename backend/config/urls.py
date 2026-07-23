@@ -24,7 +24,6 @@ urlpatterns = [
     path('api/dashboard/',include('dashboard_app.urls')),
     path('api/links/',include('links_app.urls')),
     path('api/pay/',include('pay_app.urls')),
-
     path('<str:short_code>/', LinkRedirectView.as_view(), name='link_redirect'),
     
 ]

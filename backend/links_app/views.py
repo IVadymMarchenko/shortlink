@@ -26,18 +26,18 @@ class ShortLinkCreateView(APIView):
     permission_classes = [IsAuthenticated]
     
     def post(self, request):
-        # 1. Проверяем базовый формат присланных данных (структуру JSON)
+        # 1. Перевіряємо базовий формат надісланих даних (структуру JSON)
         serializer = ShortLinkCreateSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True) # Сама вызовет ValidationError 400, если данные кривые
         try:
-            # 2. Вызываем сервис для выполнения бизнес-логики и записи в БД
+            # 2. Викликаємо сервіс для виконання бізнес-логіки та запису в БД
             new_link = LinkCreationService.create_short_link(
                 user=request.user,
                 original_url=serializer.validated_data['original_url'],
-                short_code=serializer.validated_data.get('short_code') # Здесь безопасно будет None или очищенный слаг
+                short_code=serializer.validated_data.get('short_code')
             )
             
-            # 3. Возвращаем созданный объект обратно на фронтенд
+            # 3. Повертаємо створений об'єкт назад на фронтенд
             response_serializer = ShortLinkCreateSerializer(new_link, context={'request': request})
             return Response(response_serializer.data, status=status.HTTP_201_CREATED)
             

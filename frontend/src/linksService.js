@@ -44,7 +44,13 @@ export const linksService = {
         } else if (statusCode === 400) {
           if (errorData.short_code) {
             const serverError = Array.isArray(errorData.short_code) ? errorData.short_code[0] : errorData.short_code;
-            apiError.customSlug = serverError === "slug_already_taken" ? 'errors.slugAlreadyTaken' : serverError;
+            if (serverError === "slug_already_taken") {
+              apiError.customSlug = 'errors.slugAlreadyTaken';
+            } else if (serverError === "slug_reserved") {
+              apiError.customSlug = 'errors.slugReserved';
+            } else {
+              apiError.customSlug = serverError;
+            }
           }
           if (errorData.original_url) {
             apiError.longUrl = 'errors.invalidUrlFormat';

@@ -51,7 +51,7 @@ INSTALLED_APPS = [
 
 # --- МИДЛВАРЯ ---
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",  # CORS строго в самом начале!
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -92,7 +92,7 @@ if os.environ.get("DB_NAME"):
             "NAME": os.environ.get("DB_NAME", "postgres"),
             "USER": os.environ.get("DB_USER", "postgres"),
             "PASSWORD": os.environ.get("DB_PASSWORD", "postgres"),
-            "HOST": os.environ.get("DB_HOST", "db"),  # Имя сервиса в docker-compose
+            "HOST": os.environ.get("DB_HOST", "db"),
             "PORT": os.environ.get("DB_PORT", "5432"),
         }
     }
@@ -129,6 +129,7 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 AUTH_USER_MODEL = "users_app.User"
 
 
@@ -191,9 +192,17 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
 # На случай деплоя в облако: если передан URL фронтенда в переменных
 if os.environ.get("FRONTEND_URL"):
     CORS_ALLOWED_ORIGINS.append(os.environ.get("FRONTEND_URL"))
+    CSRF_TRUSTED_ORIGINS.append(os.environ.get("FRONTEND_URL"))
 
 
 # --- НАСТРОЙКИ CELERY ---

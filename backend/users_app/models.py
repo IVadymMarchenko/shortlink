@@ -128,10 +128,6 @@ class UserSubscriptions(models.Model):
             self.save()
             logger.info(f"Monthly limits reset for user {self.user.email}. Counters cleared.")
 
-
-    
-    def __str__(self):
-        return f"{self.user.name or self.user.email} - {self.plan.name_uk or self.plan.slug}"
     
     def __str__(self):
         # ИСПРАВЛЕНО: name_uk вместо name
