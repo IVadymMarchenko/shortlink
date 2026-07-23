@@ -5,6 +5,10 @@ set -e
 echo "Applying database migrations..."
 python manage.py migrate --noinput
 
+# Автомат создание суперюзера
+echo "Creating superuser if not exists..."
+python createsuperuser.py
+
 # 2. Собираем статику Django
 echo "Collecting static files..."
 python manage.py collectstatic --noinput
