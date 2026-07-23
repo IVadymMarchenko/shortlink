@@ -10,6 +10,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+
 # --- НАСТРОЙКИ БЕЗОПАСНОСТИ ---
 SECRET_KEY = os.environ.get(
     "SECRET_KEY",
@@ -202,6 +203,9 @@ CSRF_TRUSTED_ORIGINS = [
 
 # Говорим Django доверять заголовку X-Forwarded-Proto, который передает Nginx
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Заставляет request.build_absolute_uri() использовать домен из заголовка X-Forwarded-Host
+USE_X_FORWARDED_HOST = True
 
 # На случай деплоя в облако: если передан URL фронтенда в переменных
 if os.environ.get("FRONTEND_URL"):
