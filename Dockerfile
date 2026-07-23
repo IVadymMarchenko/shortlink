@@ -4,6 +4,12 @@ WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm ci
 COPY frontend/ ./
+
+# Принимаем аргумент из процесса сборки Render
+ARG VITE_GOOGLE_CLIENT_ID
+# Превращаем его в переменную окружения для Vite
+ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
+
 RUN npm run build
 
 # 2. Основной контейнер (Python + Nginx)
