@@ -197,7 +197,11 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://shortlink-j8qr.onrender.com",
 ]
+
+# Говорим Django доверять заголовку X-Forwarded-Proto, который передает Nginx
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # На случай деплоя в облако: если передан URL фронтенда в переменных
 if os.environ.get("FRONTEND_URL"):
