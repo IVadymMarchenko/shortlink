@@ -5,7 +5,7 @@ import { validateLinkForm } from './form_validation';
 import { useLang } from '../../context/LanguageContext';
 import { linksService } from '../../linksService';
 
-const DOMAIN = import.meta.env.VITE_SHORT_LINK_DOMAIN || "127.0.0.1:8000";
+const DOMAIN = import.meta.env.VITE_SHORT_LINK_DOMAIN || window.location.host;
 
 export function useDashboard(user) {
   const { t } = useLang();

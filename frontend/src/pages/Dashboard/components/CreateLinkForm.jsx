@@ -87,7 +87,6 @@ const formatError = (errorKey) => {
               <div className={styles.resultBox}>
                 <span className={styles.resultText}>{generatedLink}</span>
                 <button 
-                  // Используем твой стильный класс успешного копирования из CSS модуля
                   className={`${styles.btnIcon} ${isCopied ? styles.btnIconSuccess : ''}`} 
                   onClick={handleCopyGenerated} 
                   type="button"
